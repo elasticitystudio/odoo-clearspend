@@ -1,350 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    
-    <!-- ============================================ -->
-    <!-- MENU PRINCIPAL AVEC MODE SIMPLE / AVANCÉ -->
-    <!-- ============================================ -->
-    
-    <!-- 
-        LÉGENDE DES GROUPES:
-        - (aucun groupe) = visible par tous, toujours
-        - group_advanced_mode = visible uniquement en Mode Avancé
-        - group_manager = visible pour Manager et CFO
-        - group_cfo = visible pour CFO uniquement
-        
-        Le groupe group_advanced_mode est assigné/retiré dynamiquement
-        à TOUS les utilisateurs quand le CFO change le mode dans Paramètres.
-    -->
-    
-    <menuitem id="menu_clearspend_root"
-              name="ClearSpend"
-              web_icon="clearspend,static/description/icon.png"
-              sequence="100"/>
-    
-    <!-- ============================================ -->
-    <!-- 1. COCKPIT - Toujours visible -->
-    <!-- ============================================ -->
-    <menuitem id="menu_dashboard"
-              name="🎛️ Cockpit"
-              parent="menu_clearspend_root"
-              action="action_dashboard"
-              sequence="1"/>
-    
-    <!-- ============================================ -->
-    <!-- 2. ACTIONS RAPIDES - Toujours visible -->
-    <!-- ============================================ -->
-    <menuitem id="menu_quick_actions"
-              name="⚡ Actions"
-              parent="menu_clearspend_root"
-              sequence="5"/>
-    
-    <!-- Toujours visible -->
-    <menuitem id="menu_quick_new_subscription"
-              name="➕ Nouvel abonnement"
-              parent="menu_quick_actions"
-              action="action_quick_new_subscription"
-              sequence="1"/>
-    
-    <!-- Mode Avancé uniquement -->
-    <menuitem id="menu_quick_invoice_inbox"
-              name="📥 Traiter factures"
-              parent="menu_quick_actions"
-              action="action_invoice_inbox"
-              groups="clearspend.group_advanced_mode"
-              sequence="2"/>
-    
-    <!-- Toujours visible -->
-    <menuitem id="menu_quick_renewals"
-              name="🔄 Renouvellements"
-              parent="menu_quick_actions"
-              action="action_upcoming_renewals"
-              sequence="3"/>
-    
-    <!-- Toujours visible -->
-    <menuitem id="menu_quick_alerts"
-              name="🔔 Alertes actives"
-              parent="menu_quick_actions"
-              action="action_alert"
-              sequence="4"/>
-    
-    <!-- Mode Avancé + Manager uniquement -->
-    <menuitem id="menu_quick_pending"
-              name="⏳ À valider"
-              parent="menu_quick_actions"
-              action="action_my_pending_approval"
-              groups="clearspend.group_advanced_mode,clearspend.group_manager"
-              sequence="5"/>
-    
-    <!-- Toujours visible -->
-    <menuitem id="menu_quick_check_budgets"
-              name="🔍 Vérifier budgets"
-              parent="menu_quick_actions"
-              action="action_check_all_budgets"
-              sequence="6"/>
-    
-    <!-- ============================================ -->
-    <!-- 3. GESTION - Base toujours visible -->
-    <!-- ============================================ -->
-    <menuitem id="menu_gestion"
-              name="📋 Gestion"
-              parent="menu_clearspend_root"
-              sequence="10"/>
-    
-    <!-- Toujours visible -->
-    <menuitem id="menu_subscriptions"
-              name="💳 Abonnements"
-              parent="menu_gestion"
-              action="action_subscription"
-              sequence="1"/>
-    
-    <!-- Mode Avancé uniquement -->
-    <menuitem id="menu_contracts"
-              name="📄 Contrats"
-              parent="menu_gestion"
-              action="action_contract"
-              groups="clearspend.group_advanced_mode"
-              sequence="2"/>
-    
-    <!-- Toujours visible -->
-    <menuitem id="menu_saas_providers"
-              name="🏢 Fournisseurs"
-              parent="menu_gestion"
-              action="action_saas_provider"
-              sequence="3"/>
-    
-    <!-- Mode Avancé uniquement -->
-    <menuitem id="menu_departments"
-              name="🏬 Départements"
-              parent="menu_gestion"
-              action="action_department"
-              groups="clearspend.group_advanced_mode"
-              sequence="4"/>
-    
-    <!-- Factures - Mode Avancé uniquement -->
-    <menuitem id="menu_invoices_parent"
-              name="🧾 Factures"
-              parent="menu_gestion"
-              groups="clearspend.group_advanced_mode"
-              sequence="5"/>
-    
-    <menuitem id="menu_invoice_inbox"
-              name="📥 Inbox"
-              parent="menu_invoices_parent"
-              action="action_invoice_inbox"
-              groups="clearspend.group_advanced_mode"
-              sequence="1"/>
-    
-    <menuitem id="menu_invoice_all"
-              name="📋 Toutes"
-              parent="menu_invoices_parent"
-              action="action_invoice_all"
-              groups="clearspend.group_advanced_mode"
-              sequence="2"/>
-    
-    <menuitem id="menu_invoice_sync"
-              name="🔄 Sync Odoo"
-              parent="menu_invoices_parent"
-              action="action_sync_odoo_invoices"
-              groups="clearspend.group_advanced_mode"
-              sequence="3"/>
-    
-    <!-- ============================================ -->
-    <!-- 4. FINANCES - Budget simple, prévisions avancé -->
-    <!-- ============================================ -->
-    <menuitem id="menu_finances"
-              name="💰 Finances"
-              parent="menu_clearspend_root"
-              sequence="15"/>
-    
-    <!-- Toujours visible -->
-    <menuitem id="menu_budgets"
-              name="📊 Budgets"
-              parent="menu_finances"
-              action="action_budget"
-              sequence="1"/>
-    
-    <!-- Mode Avancé uniquement -->
-    <menuitem id="menu_forecast"
-              name="📈 Prévisions"
-              parent="menu_finances"
-              action="action_open_forecast"
-              groups="clearspend.group_advanced_mode"
-              sequence="2"/>
-    
-    <!-- Mode Avancé uniquement -->
-    <menuitem id="menu_recommendations"
-              name="💡 Économies"
-              parent="menu_finances"
-              action="action_recommendation"
-              groups="clearspend.group_advanced_mode"
-              sequence="3"/>
-    
-    <!-- ============================================ -->
-    <!-- 5. ANALYSES - Mode Avancé principalement -->
-    <!-- ============================================ -->
-    <menuitem id="menu_analyses"
-              name="📊 Analyses"
-              parent="menu_clearspend_root"
-              groups="clearspend.group_advanced_mode"
-              sequence="20"/>
-    
-    <menuitem id="menu_cfo_analysis"
-              name="👔 Vue CFO"
-              parent="menu_analyses"
-              action="action_cfo_department_analysis"
-              groups="clearspend.group_advanced_mode,clearspend.group_cfo"
-              sequence="0"/>
-    
-    <menuitem id="menu_kanban_by_priority"
-              name="🎯 Par priorité"
-              parent="menu_analyses"
-              action="action_clearspend_home"
-              groups="clearspend.group_advanced_mode"
-              sequence="1"/>
-    
-    <menuitem id="menu_kanban_by_state"
-              name="📋 Par statut"
-              parent="menu_analyses"
-              action="action_subscription_by_state"
-              groups="clearspend.group_advanced_mode"
-              sequence="2"/>
-    
-    <menuitem id="menu_kanban_by_provider"
-              name="🏢 Par fournisseur"
-              parent="menu_analyses"
-              action="action_subscription_by_provider"
-              groups="clearspend.group_advanced_mode"
-              sequence="3"/>
-    
-    <menuitem id="menu_subscription_graphs"
-              name="📊 Graphiques interactifs"
-              parent="menu_analyses"
-              action="action_charts_interactive"
-              groups="clearspend.group_advanced_mode"
-              sequence="4"/>
-    
-    <menuitem id="menu_subscription_graphs_native"
-              name="📈 Graphiques Odoo"
-              parent="menu_analyses"
-              action="action_subscription_graphs"
-              groups="clearspend.group_advanced_mode"
-              sequence="5"/>
-    
-    <menuitem id="menu_expense_history"
-              name="📉 Historique"
-              parent="menu_analyses"
-              action="action_expense_history"
-              groups="clearspend.group_advanced_mode"
-              sequence="6"/>
-    
-    <menuitem id="menu_monthly_report"
-              name="📄 Rapport PDF"
-              parent="menu_analyses"
-              action="action_generate_monthly_report"
-              groups="clearspend.group_advanced_mode"
-              sequence="7"/>
-    
-    <!-- ============================================ -->
-    <!-- 6. SURVEILLANCE - Alertes simple, anomalies avancé -->
-    <!-- ============================================ -->
-    <menuitem id="menu_surveillance"
-              name="🔔 Surveillance"
-              parent="menu_clearspend_root"
-              sequence="25"/>
-    
-    <!-- Toujours visible -->
-    <menuitem id="menu_alerts"
-              name="⚠️ Alertes"
-              parent="menu_surveillance"
-              action="action_alert"
-              sequence="1"/>
-    
-    <!-- Mode Avancé uniquement -->
-    <menuitem id="menu_anomalies"
-              name="🔍 Anomalies"
-              parent="menu_surveillance"
-              action="action_anomaly"
-              groups="clearspend.group_advanced_mode"
-              sequence="2"/>
-    
-    <!-- Mode Avancé uniquement -->
-    <menuitem id="menu_contracts_expiring"
-              name="📅 Contrats expirant"
-              parent="menu_surveillance"
-              action="action_contract_expiring"
-              groups="clearspend.group_advanced_mode"
-              sequence="3"/>
-    
-    <!-- ============================================ -->
-    <!-- 7. INTÉGRATIONS - Mode Avancé + CFO uniquement -->
-    <!-- ============================================ -->
-    <menuitem id="menu_integrations"
-              name="🔌 Intégrations"
-              parent="menu_clearspend_root"
-              groups="clearspend.group_advanced_mode,clearspend.group_cfo"
-              sequence="85"/>
-    
-    <menuitem id="menu_api_connections"
-              name="🔗 Connexions API"
-              parent="menu_integrations"
-              action="action_api_connection"
-              groups="clearspend.group_advanced_mode,clearspend.group_cfo"
-              sequence="1"/>
-    
-    <menuitem id="menu_ocr_config"
-              name="🔍 Configuration OCR"
-              parent="menu_integrations"
-              action="action_ocr_service"
-              groups="clearspend.group_advanced_mode,clearspend.group_cfo"
-              sequence="2"/>
-    
-    <!-- ============================================ -->
-    <!-- 8. CONFIGURATION - CFO uniquement -->
-    <!-- ============================================ -->
-    <menuitem id="menu_config"
-              name="⚙️ Config"
-              parent="menu_clearspend_root"
-              groups="clearspend.group_cfo"
-              sequence="90"/>
-    
-    <menuitem id="menu_import_csv"
-              name="📥 Import données"
-              parent="menu_config"
-              action="action_import_wizard"
-              sequence="1"/>
-    
-    <menuitem id="menu_generate_alerts"
-              name="🔔 Générer alertes"
-              parent="menu_config"
-              action="action_generate_alerts"
-              sequence="2"/>
-    
-    <!-- Mode Avancé uniquement -->
-    <menuitem id="menu_detect_anomalies"
-              name="🔍 Détecter anomalies"
-              parent="menu_config"
-              action="action_detect_anomalies"
-              groups="clearspend.group_advanced_mode"
-              sequence="3"/>
-    
-    <!-- Mode Avancé uniquement -->
-    <menuitem id="menu_analyze_savings"
-              name="💡 Analyser économies"
-              parent="menu_config"
-              action="action_generate_recommendations"
-              groups="clearspend.group_advanced_mode"
-              sequence="4"/>
-    
-    <menuitem id="menu_settings"
-              name="⚙️ Paramètres"
-              parent="menu_config"
-              action="action_config"
-              sequence="10"/>
-    
-    <menuitem id="menu_restart_onboarding"
-              name="🚀 Relancer l'assistant"
-              parent="menu_config"
-              action="action_reset_onboarding"
-              sequence="20"/>
-    
+    <menuitem id="menu_clearspend_root" name="ClearSpend" web_icon="clearspend,static/description/icon.png" sequence="100"/>
+    <menuitem id="menu_dashboard" name="🎛️ Cockpit" parent="menu_clearspend_root" action="action_dashboard" sequence="1"/>
+    <menuitem id="menu_quick_actions" name="⚡ Actions" parent="menu_clearspend_root" sequence="5"/>
+    <menuitem id="menu_quick_new_subscription" name="➕ Nouvel abonnement" parent="menu_quick_actions" action="action_quick_new_subscription" sequence="1"/>
+    <menuitem id="menu_quick_invoice_inbox" name="📥 Traiter factures" parent="menu_quick_actions" action="action_invoice_inbox"  sequence="2"/>
+    <menuitem id="menu_quick_renewals" name="🔄 Renouvellements" parent="menu_quick_actions" action="action_upcoming_renewals" sequence="3"/>
+    <menuitem id="menu_quick_alerts" name="🔔 Alertes actives" parent="menu_quick_actions" action="action_alert" sequence="4"/>
+    <menuitem id="menu_quick_pending" name="⏳ À valider" parent="menu_quick_actions" action="action_my_pending_approval"  sequence="5"/>
+    <menuitem id="menu_quick_check_budgets" name="🔍 Vérifier budgets" parent="menu_quick_actions" action="action_check_all_budgets" sequence="6"/>
+    <menuitem id="menu_gestion" name="📋 Gestion" parent="menu_clearspend_root" sequence="10"/>
+    <menuitem id="menu_subscriptions" name="💳 Abonnements" parent="menu_gestion" action="action_subscription" sequence="1"/>
+    <menuitem id="menu_contracts" name="📄 Contrats" parent="menu_gestion" action="action_contract"  sequence="2"/>
+    <menuitem id="menu_saas_providers" name="🏢 Fournisseurs" parent="menu_gestion" action="action_saas_provider" sequence="3"/>
+    <menuitem id="menu_departments" name="🏬 Départements" parent="menu_gestion" action="action_department"  sequence="4"/>
+    <menuitem id="menu_invoices_parent" name="🧾 Factures" parent="menu_gestion"  sequence="5"/>
+    <menuitem id="menu_invoice_inbox" name="📥 Inbox" parent="menu_invoices_parent" action="action_invoice_inbox"  sequence="1"/>
+    <menuitem id="menu_invoice_all" name="📋 Toutes" parent="menu_invoices_parent" action="action_invoice_all"  sequence="2"/>
+    <menuitem id="menu_invoice_sync" name="🔄 Sync Odoo" parent="menu_invoices_parent" action="action_sync_odoo_invoices"  sequence="3"/>
+    <menuitem id="menu_finances" name="💰 Finances" parent="menu_clearspend_root" sequence="15"/>
+    <menuitem id="menu_budgets" name="📊 Budgets" parent="menu_finances" action="action_budget" sequence="1"/>
+    <menuitem id="menu_forecast" name="📈 Prévisions" parent="menu_finances" action="action_open_forecast"  sequence="2"/>
+    <menuitem id="menu_recommendations" name="💡 Économies" parent="menu_finances" action="action_recommendation"  sequence="3"/>
+    <menuitem id="menu_analyses" name="📊 Analyses" parent="menu_clearspend_root"  sequence="20"/>
+    <menuitem id="menu_cfo_analysis" name="👔 Vue CFO" parent="menu_analyses" action="action_cfo_department_analysis"  sequence="0"/>
+    <menuitem id="menu_kanban_by_priority" name="🎯 Par priorité" parent="menu_analyses" action="action_clearspend_home"  sequence="1"/>
+    <menuitem id="menu_kanban_by_state" name="📋 Par statut" parent="menu_analyses" action="action_subscription_by_state"  sequence="2"/>
+    <menuitem id="menu_kanban_by_provider" name="🏢 Par fournisseur" parent="menu_analyses" action="action_subscription_by_provider"  sequence="3"/>
+    <menuitem id="menu_subscription_graphs" name="📊 Graphiques interactifs" parent="menu_analyses" action="action_charts_interactive"  sequence="4"/>
+    <menuitem id="menu_subscription_graphs_native" name="📈 Graphiques Odoo" parent="menu_analyses" action="action_subscription_graphs"  sequence="5"/>
+    <menuitem id="menu_expense_history" name="📉 Historique" parent="menu_analyses" action="action_expense_history"  sequence="6"/>
+    <menuitem id="menu_monthly_report" name="📄 Rapport PDF" parent="menu_analyses" action="action_generate_monthly_report"  sequence="7"/>
+    <menuitem id="menu_surveillance" name="🔔 Surveillance" parent="menu_clearspend_root" sequence="25"/>
+    <menuitem id="menu_alerts" name="⚠️ Alertes" parent="menu_surveillance" action="action_alert" sequence="1"/>
+    <menuitem id="menu_anomalies" name="🔍 Anomalies" parent="menu_surveillance" action="action_anomaly"  sequence="2"/>
+    <menuitem id="menu_contracts_expiring" name="📅 Contrats expirant" parent="menu_surveillance" action="action_contract_expiring"  sequence="3"/>
+    <menuitem id="menu_integrations" name="🔌 Intégrations" parent="menu_clearspend_root"  sequence="85"/>
+    <menuitem id="menu_api_connections" name="🔗 Connexions API" parent="menu_integrations" action="action_api_connection"  sequence="1"/>
+    <menuitem id="menu_ocr_config" name="🔍 Configuration OCR" parent="menu_integrations" action="action_ocr_service"  sequence="2"/>
+    <menuitem id="menu_config" name="⚙️ Config" parent="menu_clearspend_root"  sequence="90"/>
+    <menuitem id="menu_import_csv" name="📥 Import données" parent="menu_config" action="action_import_wizard" sequence="1"/>
+    <menuitem id="menu_generate_alerts" name="🔔 Générer alertes" parent="menu_config" action="action_generate_alerts" sequence="2"/>
+    <menuitem id="menu_detect_anomalies" name="🔍 Détecter anomalies" parent="menu_config" action="action_detect_anomalies"  sequence="3"/>
+    <menuitem id="menu_analyze_savings" name="💡 Analyser économies" parent="menu_config" action="action_generate_recommendations"  sequence="4"/>
+    <menuitem id="menu_settings" name="⚙️ Paramètres" parent="menu_config" action="action_config" sequence="10"/>
+    <menuitem id="menu_restart_onboarding" name="🚀 Relancer l'assistant" parent="menu_config" action="action_reset_onboarding" sequence="20"/>
 </odoo>

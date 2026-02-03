@@ -5,10 +5,10 @@
     <!-- DÉPARTEMENTS - TREE VIEW -->
     <!-- ============================================ -->
     <record id="view_department_tree" model="ir.ui.view">
-        <field name="name">clearspend.department.tree</field>
+        <field name="name">clearspend.department.list</field>
         <field name="model">clearspend.department</field>
         <field name="arch" type="xml">
-            <tree string="Départements" decoration-warning="budget_used_percent &gt; 80" decoration-danger="budget_used_percent &gt; 100">
+            <list string="Départements" decoration-warning="budget_used_percent &gt; 80" decoration-danger="budget_used_percent &gt; 100">
                 <field name="code"/>
                 <field name="name"/>
                 <field name="manager_id" widget="many2one_avatar_user"/>
@@ -19,7 +19,7 @@
                 <field name="state" widget="badge"
                        decoration-info="state == 'draft'"
                        decoration-success="state == 'active'"/>
-            </tree>
+            </list>
         </field>
     </record>
     
@@ -174,13 +174,11 @@
                 <field name="name"/>
                 <field name="code"/>
                 <field name="manager_id"/>
-                <filter name="filter_draft" string="📝 Brouillons" domain="[('state', '=', 'draft')]"/>
-                <filter name="filter_active" string="✅ Actifs" domain="[('state', '=', 'active')]"/>
+                <filter name="filter_draft" string="Brouillons" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_active" string="Actifs" domain="[('state', '=', 'active')]"/>
                 <separator/>
-                <group expand="0" string="Grouper par">
-                    <filter name="group_manager" string="Responsable" context="{'group_by': 'manager_id'}"/>
-                    <filter name="group_state" string="État" context="{'group_by': 'state'}"/>
-                </group>
+                <filter name="group_manager" string="Responsable" context="{'group_by': 'manager_id'}"/>
+                <filter name="group_state" string="Etat" context="{'group_by': 'state'}"/>
             </search>
         </field>
     </record>
@@ -218,7 +216,7 @@
     <record id="action_department" model="ir.actions.act_window">
         <field name="name">🏢 Départements</field>
         <field name="res_model">clearspend.department</field>
-        <field name="view_mode">kanban,tree,form,graph,pivot</field>
+        <field name="view_mode">kanban,list,form,graph,pivot</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Créez votre premier département
@@ -232,7 +230,7 @@
     <record id="action_department_analysis" model="ir.actions.act_window">
         <field name="name">📊 Analyse par département</field>
         <field name="res_model">clearspend.subscription</field>
-        <field name="view_mode">graph,pivot,tree</field>
+        <field name="view_mode">graph,pivot,list</field>
         <field name="domain">[('state', 'in', ['active', 'validated'])]</field>
         <field name="context">{
             'search_default_group_department': 1
@@ -243,7 +241,7 @@
     <record id="action_cfo_department_analysis" model="ir.actions.act_window">
         <field name="name">👔 Analyse CFO par Département</field>
         <field name="res_model">clearspend.department</field>
-        <field name="view_mode">kanban,tree,graph,pivot</field>
+        <field name="view_mode">kanban,list,graph,pivot</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Vue CFO - Analyse consolidée

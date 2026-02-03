@@ -16,7 +16,7 @@ class ClearspendConfig(models.Model):
     mode = fields.Selection([
         ('simple', '🟢 Simple - PME'),
         ('advanced', '🔵 Avancé - Grandes entreprises'),
-    ], string='Mode', default='simple', required=True,
+    ], string='Mode', default='advanced', required=True,
        help="Mode Simple : Gestion basique des abonnements et budgets.\n"
             "Mode Avancé : Workflow d'approbation, intégrations API, OCR, prévisions.")
     
@@ -239,7 +239,7 @@ class ClearspendConfig(models.Model):
             'type': 'ir.actions.act_window',
             'name': 'Utilisateurs ClearSpend',
             'res_model': 'res.users',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('share', '=', False)],
             'context': {
                 'search_default_active': 1,
@@ -291,10 +291,10 @@ class ClearspendConfig(models.Model):
         
         if activate:
             # Ajouter le groupe à tous les utilisateurs
-            users.write({'groups_id': [(4, group.id)]})
+            users.write({'group_ids': [(4, group.id)]})
         else:
             # Retirer le groupe de tous les utilisateurs
-            users.write({'groups_id': [(3, group.id)]})
+            users.write({'group_ids': [(3, group.id)]})
     
     @api.model
     def _init_mode_group(self):

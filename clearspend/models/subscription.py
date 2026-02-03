@@ -386,7 +386,7 @@ class ClearspendSubscription(models.Model):
             'type': 'ir.actions.act_window',
             'name': 'Contrats',
             'res_model': 'clearspend.contract',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('subscription_id', '=', self.id)],
             'context': {'default_subscription_id': self.id},
         }
@@ -414,7 +414,7 @@ class ClearspendSubscription(models.Model):
             'type': 'ir.actions.act_window',
             'name': 'Factures',
             'res_model': 'clearspend.invoice',
-            'view_mode': 'tree,kanban,form',
+            'view_mode': 'list,kanban,form',
             'domain': [('subscription_id', '=', self.id)],
             'context': {'default_subscription_id': self.id},
         }

@@ -16,23 +16,20 @@
     
     <!-- Utilisateur : voit uniquement son département -->
     <record id="group_user" model="res.groups">
-        <field name="name">Utilisateur</field>
-        <field name="category_id" ref="module_category_clearspend"/>
+        <field name="name">ClearSpend / Utilisateur</field>
         <field name="comment">Peut voir et créer des abonnements/factures dans son département uniquement.</field>
     </record>
     
     <!-- Manager : gère son département -->
     <record id="group_manager" model="res.groups">
-        <field name="name">Manager Département</field>
-        <field name="category_id" ref="module_category_clearspend"/>
+        <field name="name">ClearSpend / Manager Département</field>
         <field name="implied_ids" eval="[(4, ref('group_user'))]"/>
         <field name="comment">Peut valider les abonnements et gérer les budgets de son département.</field>
     </record>
     
     <!-- CFO/Admin : accès complet -->
     <record id="group_cfo" model="res.groups">
-        <field name="name">CFO / Administrateur</field>
-        <field name="category_id" ref="module_category_clearspend"/>
+        <field name="name">ClearSpend / CFO Administrateur</field>
         <field name="implied_ids" eval="[(4, ref('group_manager'))]"/>
         <field name="comment">Accès complet à tous les départements, configuration et rapports.</field>
     </record>
@@ -41,20 +38,15 @@
     <!-- GROUPE MODE AVANCÉ (assigné dynamiquement) -->
     <!-- ============================================ -->
     
-    <!-- Ce groupe est assigné/retiré automatiquement à TOUS les utilisateurs
-         quand le CFO change le mode dans Configuration > Paramètres.
-         Il contrôle la visibilité des menus et fonctionnalités avancées. -->
     <record id="group_advanced_mode" model="res.groups">
-        <field name="name">🔵 Mode Avancé</field>
-        <field name="category_id" ref="module_category_clearspend"/>
-        <field name="comment">Groupe technique assigné automatiquement quand le mode Avancé est activé. Donne accès aux fonctionnalités avancées : Workflow, Prévisions, Intégrations API, OCR, Contrats.</field>
+        <field name="name">ClearSpend / Mode Avancé</field>
+        <field name="comment">Groupe technique assigné automatiquement quand le mode Avancé est activé.</field>
     </record>
     
     <!-- ============================================ -->
     <!-- RÈGLES D'ACCÈS - ABONNEMENTS -->
     <!-- ============================================ -->
     
-    <!-- Utilisateurs : voient les abonnements de leur département -->
     <record id="rule_subscription_user" model="ir.rule">
         <field name="name">Abonnements : Mon département</field>
         <field name="model_id" ref="model_clearspend_subscription"/>
@@ -72,7 +64,6 @@
         <field name="perm_unlink" eval="False"/>
     </record>
     
-    <!-- CFO : accès complet aux abonnements -->
     <record id="rule_subscription_cfo" model="ir.rule">
         <field name="name">Abonnements : Accès complet CFO</field>
         <field name="model_id" ref="model_clearspend_subscription"/>
@@ -120,7 +111,6 @@
     <!-- RÈGLES D'ACCÈS - DÉPARTEMENTS -->
     <!-- ============================================ -->
     
-    <!-- Utilisateurs : voient leur département -->
     <record id="rule_department_user" model="ir.rule">
         <field name="name">Départements : Mon département (lecture)</field>
         <field name="model_id" ref="model_clearspend_department"/>
@@ -136,7 +126,6 @@
         <field name="perm_unlink" eval="False"/>
     </record>
     
-    <!-- Managers : peuvent modifier leur département -->
     <record id="rule_department_manager" model="ir.rule">
         <field name="name">Départements : Mon département (gestion)</field>
         <field name="model_id" ref="model_clearspend_department"/>
@@ -148,7 +137,6 @@
         <field name="perm_unlink" eval="False"/>
     </record>
     
-    <!-- CFO : accès complet aux départements -->
     <record id="rule_department_cfo" model="ir.rule">
         <field name="name">Départements : Accès complet CFO</field>
         <field name="model_id" ref="model_clearspend_department"/>
@@ -271,7 +259,6 @@
     <!-- ACCÈS LECTURE SEULE - AUTRES MODÈLES -->
     <!-- ============================================ -->
     
-    <!-- Fournisseurs : lecture pour tous -->
     <record id="rule_provider_all" model="ir.rule">
         <field name="name">Fournisseurs : Lecture tous</field>
         <field name="model_id" ref="model_clearspend_saas_provider"/>

@@ -572,7 +572,7 @@ class ClearspendDashboard(models.TransientModel):
             }
         
         # Sinon, ouvrir le dashboard normalement
-        dashboard = self.create({})
+        dashboard = self.search([], limit=1) or self.create({})
         company_name = self.env.company.name or 'ClearSpend'
         return {
             'type': 'ir.actions.act_window',
@@ -589,7 +589,7 @@ class ClearspendDashboard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Abonnements',
             'res_model': 'clearspend.subscription',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('state', 'in', ['active', 'validated'])],
             'target': 'current',
         }
@@ -600,7 +600,7 @@ class ClearspendDashboard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Alertes',
             'res_model': 'clearspend.alert',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('state', 'in', ['new', 'seen'])],
             'target': 'current',
         }
@@ -611,7 +611,7 @@ class ClearspendDashboard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Fournisseurs SaaS',
             'res_model': 'clearspend.saas.provider',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'target': 'current',
         }
 
@@ -621,7 +621,7 @@ class ClearspendDashboard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Abonnements essentiels',
             'res_model': 'clearspend.subscription',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('category', '=', 'essential'), ('state', 'in', ['active', 'validated'])],
             'target': 'current',
         }
@@ -632,7 +632,7 @@ class ClearspendDashboard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Abonnements à revoir',
             'res_model': 'clearspend.subscription',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('category', '=', 'to_review'), ('state', 'in', ['active', 'validated'])],
             'target': 'current',
         }
@@ -643,7 +643,7 @@ class ClearspendDashboard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Recommandations d\'économies',
             'res_model': 'clearspend.recommendation',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('state', '=', 'new')],
             'target': 'current',
         }
@@ -654,7 +654,7 @@ class ClearspendDashboard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Anomalies détectées',
             'res_model': 'clearspend.anomaly',
-            'view_mode': 'kanban,tree,form',
+            'view_mode': 'list,form',
             'domain': [('resolved', '=', False)],
             'target': 'current',
         }
@@ -665,7 +665,7 @@ class ClearspendDashboard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Contrats',
             'res_model': 'clearspend.contract',
-            'view_mode': 'tree,kanban,form',
+            'view_mode': 'list,kanban,form',
             'domain': [('state', 'in', ['active', 'expiring'])],
             'target': 'current',
         }
@@ -678,7 +678,7 @@ class ClearspendDashboard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Contrats expirant',
             'res_model': 'clearspend.contract',
-            'view_mode': 'tree,kanban,form',
+            'view_mode': 'list,kanban,form',
             'domain': [
                 ('state', 'in', ['active', 'expiring']),
                 ('end_date', '>=', today),
@@ -693,7 +693,7 @@ class ClearspendDashboard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Inbox Factures',
             'res_model': 'clearspend.invoice',
-            'view_mode': 'kanban,tree,form',
+            'view_mode': 'list,form',
             'domain': [('state', '=', 'inbox')],
             'target': 'current',
         }
@@ -704,7 +704,7 @@ class ClearspendDashboard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Factures non associées',
             'res_model': 'clearspend.invoice',
-            'view_mode': 'kanban,tree,form',
+            'view_mode': 'list,form',
             'domain': [
                 ('state', 'in', ['inbox', 'processing']),
                 ('subscription_id', '=', False),
@@ -723,7 +723,7 @@ class ClearspendDashboard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Budgets',
             'res_model': 'clearspend.budget',
-            'view_mode': 'tree,form,graph',
+            'view_mode': 'list,form,graph',
             'target': 'current',
         }
 
@@ -733,7 +733,7 @@ class ClearspendDashboard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Analyses graphiques',
             'res_model': 'clearspend.subscription',
-            'view_mode': 'graph,pivot,tree',
+            'view_mode': 'graph,pivot,list',
             'domain': [('state', 'in', ['active', 'validated'])],
             'target': 'current',
         }

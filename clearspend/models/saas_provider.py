@@ -47,6 +47,6 @@ class ClearspendSaasProvider(models.Model):
             'type': 'ir.actions.act_window',
             'name': f'Alternatives à {self.name}',
             'res_model': 'clearspend.saas.provider',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('id', 'in', self.alternative_ids.ids)],
         }

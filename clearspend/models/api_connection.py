@@ -339,7 +339,7 @@ class ApiConnection(models.Model):
             'type': 'ir.actions.act_window',
             'name': f'Abonnements - {self.name}',
             'res_model': 'clearspend.subscription',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('api_connection_id', '=', self.id)],
             'context': {'default_api_connection_id': self.id},
         }
@@ -350,7 +350,7 @@ class ApiConnection(models.Model):
             'type': 'ir.actions.act_window',
             'name': f'Factures - {self.name}',
             'res_model': 'clearspend.invoice',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('api_connection_id', '=', self.id)],
         }
 

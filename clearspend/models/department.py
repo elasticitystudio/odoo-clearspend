@@ -93,7 +93,7 @@ class Department(models.Model):
             'type': 'ir.actions.act_window',
             'name': f'Abonnements - {self.name}',
             'res_model': 'clearspend.subscription',
-            'view_mode': 'tree,kanban,form',
+            'view_mode': 'list,kanban,form',
             'domain': [('department_id', '=', self.id)],
             'context': {'default_department_id': self.id},
         }
@@ -104,7 +104,7 @@ class Department(models.Model):
             'type': 'ir.actions.act_window',
             'name': f'Factures - {self.name}',
             'res_model': 'clearspend.invoice',
-            'view_mode': 'tree,kanban,form',
+            'view_mode': 'list,kanban,form',
             'domain': [('department_id', '=', self.id)],
         }
 

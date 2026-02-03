@@ -10,9 +10,7 @@
             <field name="code">model.generate_renewal_alerts()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
             <field name="active">True</field>
-            <field name="doall">False</field>
         </record>
         
         <!-- Cron : Nettoyage des anciennes alertes traitées (> 90 jours) -->
@@ -23,9 +21,7 @@
             <field name="code">model.cleanup_old_alerts()</field>
             <field name="interval_number">7</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
             <field name="active">True</field>
-            <field name="doall">False</field>
         </record>
         
         <!-- Cron : Mise à jour du badge alertes -->
@@ -36,9 +32,7 @@
             <field name="code">model.update_menu_badge()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">hours</field>
-            <field name="numbercall">-1</field>
             <field name="active">True</field>
-            <field name="doall">False</field>
         </record>
         
         <!-- Cron : Analyse des économies (hebdomadaire) -->
@@ -49,9 +43,7 @@
             <field name="code">model.generate_recommendations()</field>
             <field name="interval_number">7</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
             <field name="active">True</field>
-            <field name="doall">False</field>
         </record>
         
         <!-- Cron : Snapshot mensuel des dépenses -->
@@ -62,9 +54,7 @@
             <field name="code">model.record_snapshot()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">months</field>
-            <field name="numbercall">-1</field>
             <field name="active">True</field>
-            <field name="doall">False</field>
         </record>
         
         <!-- Cron : Rapport mensuel par email -->
@@ -75,9 +65,7 @@
             <field name="code">model.send_monthly_report_cron()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">months</field>
-            <field name="numbercall">-1</field>
             <field name="active">True</field>
-            <field name="doall">False</field>
         </record>
         
         <!-- Cron : Détection anomalies (hebdomadaire) -->
@@ -88,9 +76,7 @@
             <field name="code">model.detect_all_anomalies()</field>
             <field name="interval_number">7</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
             <field name="active">True</field>
-            <field name="doall">False</field>
         </record>
         
         <!-- Cron : Mise à jour statut contrats (quotidien) -->
@@ -101,9 +87,7 @@
             <field name="code">model.update_contract_states()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
             <field name="active">True</field>
-            <field name="doall">False</field>
         </record>
         
         <!-- Cron: Synchronisation factures Odoo -->
@@ -114,7 +98,6 @@
             <field name="code">model.cron_sync_odoo_invoices()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">hours</field>
-            <field name="numbercall">-1</field>
             <field name="active">True</field>
         </record>
         
@@ -126,7 +109,6 @@
             <field name="code">model._cron_sync_all()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
             <field name="active">True</field>
         </record>
         

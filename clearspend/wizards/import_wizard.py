@@ -3,26 +3,37 @@ import base64
 import csv
 import io
 import re
+import json
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+import logging
+
+_logger = logging.getLogger(__name__)
+
 
 class ClearspendImportWizard(models.TransientModel):
     _name = 'clearspend.import.wizard'
-    _description = 'Import Excel/CSV Abonnements'
+    _description = 'Import PDF/Excel/CSV Abonnements'
 
     # Étape 1: Upload
     file = fields.Binary(string='Fichier', required=True)
     filename = fields.Char(string='Nom du fichier')
+    file_type = fields.Selection([
+        ('csv', 'CSV'),
+        ('excel', 'Excel'),
+        ('pdf', 'PDF (Facture)'),
+    ], string='Type de fichier', compute='_compute_file_type', store=True)
     
     # État du wizard
     state = fields.Selection([
         ('upload', 'Upload'),
         ('mapping', 'Mapping'),
         ('preview', 'Prévisualisation'),
+        ('pdf_review', 'Vérification PDF'),
         ('done', 'Terminé'),
     ], default='upload')
     
-    # Mapping des colonnes (détecté automatiquement, modifiable)
+    # Mapping des colonnes (pour CSV/Excel)
     col_name = fields.Char(string='Colonne Nom')
     col_provider = fields.Char(string='Colonne Fournisseur')
     col_price = fields.Char(string='Colonne Prix')
@@ -45,7 +56,38 @@ class ClearspendImportWizard(models.TransientModel):
     
     # Données parsées (stockées temporairement)
     parsed_data = fields.Text(string='Données parsées')
-
+    
+    # ===== CHAMPS PDF/OCR =====
+    ocr_confidence = fields.Float(string='Confiance OCR (%)', readonly=True)
+    ocr_raw_text = fields.Text(string='Texte extrait', readonly=True)
+    
+    # Données extraites du PDF (modifiables par l'utilisateur)
+    pdf_name = fields.Char(string='Nom abonnement')
+    pdf_provider = fields.Char(string='Fournisseur détecté')
+    pdf_provider_id = fields.Many2one('clearspend.saas.provider', string='Fournisseur')
+    pdf_amount = fields.Float(string='Montant détecté')
+    pdf_currency = fields.Selection([
+        ('EUR', 'EUR €'),
+        ('USD', 'USD $'),
+        ('GBP', 'GBP £'),
+        ('CHF', 'CHF'),
+    ], string='Devise', default='EUR')
+    pdf_date = fields.Date(string='Date facture')
+    pdf_invoice_number = fields.Char(string='N° Facture')
+    pdf_cycle = fields.Selection([
+        ('monthly', 'Mensuel'),
+        ('quarterly', 'Trimestriel'),
+        ('yearly', 'Annuel'),
+    ], string='Cycle', default='monthly')
+    pdf_category = fields.Selection([
+        ('essential', 'Essentiel'),
+        ('important', 'Important'),
+        ('optional', 'Optionnel'),
+        ('to_review', 'À revoir'),
+    ], string='Priorité', default='important')
+    pdf_department_id = fields.Many2one('clearspend.department', string='Département')
+    pdf_notes = fields.Text(string='Notes')
+    
     # Mapping intelligent des noms de colonnes
     COLUMN_PATTERNS = {
         'name': ['nom', 'name', 'titre', 'title', 'abonnement', 'subscription', 'service', 'outil', 'tool', 'logiciel', 'software'],
@@ -58,6 +100,102 @@ class ClearspendImportWizard(models.TransientModel):
         'renewal': ['renouvellement', 'renewal', 'echeance', 'échéance', 'expiration', 'date_fin', 'end_date', 'next_billing'],
         'notes': ['notes', 'note', 'commentaire', 'commentaires', 'comment', 'comments', 'description', 'remarque', 'remarques'],
     }
+
+    @api.depends('filename')
+    def _compute_file_type(self):
+        for record in self:
+            filename = (record.filename or '').lower()
+            if filename.endswith('.pdf'):
+                record.file_type = 'pdf'
+            elif filename.endswith(('.xlsx', '.xls')):
+                record.file_type = 'excel'
+            else:
+                record.file_type = 'csv'
+
+    def action_analyze(self):
+        """Analyse le fichier uploadé."""
+        if not self.file:
+            raise UserError("Veuillez sélectionner un fichier.")
+        
+        filename = (self.filename or '').lower()
+        
+        # Si c'est un PDF, utiliser l'OCR
+        if filename.endswith('.pdf'):
+            return self._analyze_pdf()
+        else:
+            return self._analyze_csv_excel()
+
+    def _analyze_pdf(self):
+        """Analyse un PDF avec OCR."""
+        OcrService = self.env['clearspend.ocr.service']
+        service = OcrService.get_service()
+        
+        # Traiter le PDF
+        result = service.process_invoice_file(self.file, self.filename)
+        
+        self.ocr_confidence = result.get('confidence', 0)
+        self.ocr_raw_text = result.get('raw_text', '')[:3000]
+        
+        data = result.get('data', {})
+        
+        # Pré-remplir les champs avec les données extraites
+        self.pdf_provider = data.get('provider_name', '')
+        self.pdf_amount = data.get('amount', 0)
+        self.pdf_currency = data.get('currency', 'EUR')
+        self.pdf_invoice_number = data.get('invoice_number', '')
+        
+        if data.get('invoice_date'):
+            try:
+                self.pdf_date = data.get('invoice_date')
+            except:
+                pass
+        
+        # Générer un nom par défaut
+        if self.pdf_provider:
+            self.pdf_name = f"Abonnement {self.pdf_provider}"
+        else:
+            self.pdf_name = f"Import depuis {self.filename}"
+        
+        # Chercher le fournisseur dans la base
+        if self.pdf_provider:
+            provider = self.env['clearspend.saas.provider'].search([
+                ('name', 'ilike', self.pdf_provider)
+            ], limit=1)
+            if provider:
+                self.pdf_provider_id = provider.id
+        
+        self.state = 'pdf_review'
+        return self._reload_wizard()
+
+    def _analyze_csv_excel(self):
+        """Analyse un fichier CSV ou Excel."""
+        headers, data = self._parse_file()
+        
+        if not headers:
+            raise UserError("Impossible de détecter les colonnes du fichier.")
+        
+        # Auto-mapping
+        mapping = self._auto_map_columns(headers)
+        
+        # Stocker les données parsées
+        self.parsed_data = json.dumps(data, ensure_ascii=False)
+        self.detected_columns = ', '.join(headers)
+        
+        # Appliquer le mapping détecté
+        self.col_name = mapping.get('name', '')
+        self.col_provider = mapping.get('provider', '')
+        self.col_price = mapping.get('price', '')
+        self.col_quantity = mapping.get('quantity', '')
+        self.col_cycle = mapping.get('cycle', '')
+        self.col_category = mapping.get('category', '')
+        self.col_department = mapping.get('department', '')
+        self.col_renewal = mapping.get('renewal', '')
+        self.col_notes = mapping.get('notes', '')
+        
+        self.preview_count = len(data)
+        self.state = 'mapping'
+        
+        return self._reload_wizard()
 
     def _parse_file(self):
         """Parse le fichier uploadé (CSV ou Excel)."""
@@ -141,40 +279,8 @@ class ClearspendImportWizard(models.TransientModel):
         
         return mapping
 
-    def action_analyze(self):
-        """Analyse le fichier et propose un mapping."""
-        headers, data = self._parse_file()
-        
-        if not headers:
-            raise UserError("Impossible de détecter les colonnes du fichier.")
-        
-        # Auto-mapping
-        mapping = self._auto_map_columns(headers)
-        
-        # Stocker les données parsées
-        import json
-        self.parsed_data = json.dumps(data, ensure_ascii=False)
-        self.detected_columns = ', '.join(headers)
-        
-        # Appliquer le mapping détecté
-        self.col_name = mapping.get('name', '')
-        self.col_provider = mapping.get('provider', '')
-        self.col_price = mapping.get('price', '')
-        self.col_quantity = mapping.get('quantity', '')
-        self.col_cycle = mapping.get('cycle', '')
-        self.col_category = mapping.get('category', '')
-        self.col_department = mapping.get('department', '')
-        self.col_renewal = mapping.get('renewal', '')
-        self.col_notes = mapping.get('notes', '')
-        
-        self.preview_count = len(data)
-        self.state = 'mapping'
-        
-        return self._reload_wizard()
-    
     def action_preview(self):
         """Génère une prévisualisation des données."""
-        import json
         data = json.loads(self.parsed_data or '[]')
         
         if not data:
@@ -239,8 +345,7 @@ class ClearspendImportWizard(models.TransientModel):
         return row.get(col_name, row.get(col_lower))
 
     def action_import(self):
-        """Importe les abonnements."""
-        import json
+        """Importe les abonnements (CSV/Excel)."""
         data = json.loads(self.parsed_data or '[]')
         
         if not data:
@@ -292,7 +397,6 @@ class ClearspendImportWizard(models.TransientModel):
                     'quantity': quantity,
                     'billing_cycle': billing_cycle,
                     'category': category,
-                    'department': (self._get_value(row, self.col_department) or '').strip(),
                     'notes': (self._get_value(row, self.col_notes) or '').strip(),
                     'state': 'draft',
                 }
@@ -337,6 +441,74 @@ class ClearspendImportWizard(models.TransientModel):
         self.state = 'done'
         
         return self._reload_wizard()
+
+    def action_import_pdf(self):
+        """Importe l'abonnement depuis le PDF analysé."""
+        Subscription = self.env['clearspend.subscription']
+        Provider = self.env['clearspend.saas.provider']
+        
+        # Créer ou récupérer le fournisseur
+        provider_id = self.pdf_provider_id.id if self.pdf_provider_id else False
+        if not provider_id and self.pdf_provider:
+            provider = Provider.search([('name', 'ilike', self.pdf_provider)], limit=1)
+            if not provider:
+                provider = Provider.create({'name': self.pdf_provider})
+            provider_id = provider.id
+        
+        # Créer l'abonnement
+        vals = {
+            'name': self.pdf_name or f'Import PDF {self.filename}',
+            'provider_id': provider_id,
+            'unit_price': self.pdf_amount or 0,
+            'quantity': 1,
+            'billing_cycle': self.pdf_cycle or 'monthly',
+            'category': self.pdf_category or 'important',
+            'currency_id': self.env['res.currency'].search([('name', '=', self.pdf_currency)], limit=1).id,
+            'notes': self.pdf_notes or '',
+            'state': 'draft',
+        }
+        
+        if self.pdf_department_id:
+            vals['department_id'] = self.pdf_department_id.id
+        
+        if self.pdf_date:
+            vals['renewal_date'] = self.pdf_date
+        
+        subscription = Subscription.create(vals)
+        
+        # Créer aussi une facture liée si on a les infos
+        if self.pdf_invoice_number or self.pdf_amount:
+            try:
+                Invoice = self.env['clearspend.invoice']
+                invoice_vals = {
+                    'name': self.pdf_invoice_number or f'Facture {self.pdf_provider}',
+                    'subscription_id': subscription.id,
+                    'amount': self.pdf_amount or 0,
+                    'invoice_date': self.pdf_date or fields.Date.today(),
+                    'invoice_file': self.file,
+                    'invoice_filename': self.filename,
+                    'source': 'upload',
+                    'state': 'matched',
+                }
+                Invoice.create(invoice_vals)
+            except Exception as e:
+                _logger.warning("Impossible de créer la facture: %s", str(e))
+        
+        # Résultat
+        self.result_message = f'''
+        <div class="text-center p-4">
+            <h2 style="color: #28a745;">✅ Import PDF terminé</h2>
+            <p style="font-size: 1.2em;">Abonnement <strong>{subscription.name}</strong> créé</p>
+            <p>Fournisseur: {self.pdf_provider or '-'}<br/>
+            Montant: {self.pdf_amount} {self.pdf_currency}</p>
+            <a href="/web#id={subscription.id}&model=clearspend.subscription&view_type=form" class="btn btn-primary mt-3">
+                Voir l'abonnement
+            </a>
+        </div>
+        '''
+        
+        self.state = 'done'
+        return self._reload_wizard()
     
     def _parse_number(self, value):
         """Parse un nombre depuis une string."""
@@ -363,7 +535,6 @@ class ClearspendImportWizard(models.TransientModel):
         if not value:
             return None
         
-        import re
         from datetime import datetime
         
         value = str(value).strip()
@@ -423,6 +594,8 @@ class ClearspendImportWizard(models.TransientModel):
             self.state = 'upload'
         elif self.state == 'preview':
             self.state = 'mapping'
+        elif self.state == 'pdf_review':
+            self.state = 'upload'
         return self._reload_wizard()
 
     def action_download_template(self):

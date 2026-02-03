@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'ClearSpend',
-    'version': '17.0.1.0.0',
+    'version': '19.0.1.0.0',
     'summary': 'Gestion intelligente des abonnements SaaS & dépenses récurrentes',
     'description': '''
 ClearSpend - Module FinOps pour Odoo 17

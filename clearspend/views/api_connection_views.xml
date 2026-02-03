@@ -5,10 +5,10 @@
     <!-- CONNEXIONS API - TREE VIEW -->
     <!-- ============================================ -->
     <record id="view_api_connection_tree" model="ir.ui.view">
-        <field name="name">clearspend.api.connection.tree</field>
+        <field name="name">clearspend.api.connection.list</field>
         <field name="model">clearspend.api.connection</field>
         <field name="arch" type="xml">
-            <tree string="Connexions API" decoration-success="state == 'connected'" decoration-danger="state == 'error'" decoration-muted="state == 'draft'">
+            <list string="Connexions API" decoration-success="state == 'connected'" decoration-danger="state == 'error'" decoration-muted="state == 'draft'">
                 <field name="name"/>
                 <field name="provider_type"/>
                 <field name="state" widget="badge" decoration-success="state == 'connected'" decoration-danger="state == 'error'" decoration-warning="state == 'testing'" decoration-info="state == 'draft'"/>
@@ -16,7 +16,7 @@
                 <field name="last_sync"/>
                 <field name="subscription_count"/>
                 <field name="invoice_count"/>
-            </tree>
+            </list>
         </field>
     </record>
     
@@ -198,7 +198,7 @@
     <record id="action_api_connection" model="ir.actions.act_window">
         <field name="name">🔌 Connexions API</field>
         <field name="res_model">clearspend.api.connection</field>
-        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Connectez vos fournisseurs SaaS

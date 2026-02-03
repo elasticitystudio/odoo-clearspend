@@ -3,10 +3,10 @@
     
     <!-- Vue liste historique -->
     <record id="view_expense_history_tree" model="ir.ui.view">
-        <field name="name">clearspend.expense.history.tree</field>
+        <field name="name">clearspend.expense.history.list</field>
         <field name="model">clearspend.expense.history</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="date"/>
                 <field name="month"/>
                 <field name="total_monthly" sum="Total"/>
@@ -15,7 +15,7 @@
                 <field name="important_amount"/>
                 <field name="optional_amount"/>
                 <field name="finops_score"/>
-            </tree>
+            </list>
         </field>
     </record>
     
@@ -83,11 +83,9 @@
                 <field name="date"/>
                 <field name="month"/>
                 <field name="year"/>
-                <group expand="0" string="Grouper par">
-                    <filter name="group_month" string="Mois" context="{'group_by': 'month'}"/>
+                <filter name="group_month" string="Mois" context="{'group_by': 'month'}"/>
                     <filter name="group_year" string="Année" context="{'group_by': 'year'}"/>
-                </group>
-            </search>
+                </search>
         </field>
     </record>
     
@@ -95,7 +93,7 @@
     <record id="action_expense_history" model="ir.actions.act_window">
         <field name="name">📈 Évolution des dépenses</field>
         <field name="res_model">clearspend.expense.history</field>
-        <field name="view_mode">graph,pivot,tree</field>
+        <field name="view_mode">graph,pivot,list</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Aucun historique

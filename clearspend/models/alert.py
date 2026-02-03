@@ -73,7 +73,7 @@ class ClearspendAlert(models.Model):
                 'type': 'ir.actions.act_window',
                 'name': f'Abonnements - {self.department_id.name}',
                 'res_model': 'clearspend.subscription',
-                'view_mode': 'tree,form',
+                'view_mode': 'list,form',
                 'domain': [('department_id', '=', self.department_id.id)],
                 'context': {'search_default_filter_active': 1},
             }

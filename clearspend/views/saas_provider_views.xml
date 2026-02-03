@@ -2,15 +2,15 @@
 <odoo>
     
     <record id="view_saas_provider_tree" model="ir.ui.view">
-        <field name="name">clearspend.saas.provider.tree</field>
+        <field name="name">clearspend.saas.provider.list</field>
         <field name="model">clearspend.saas.provider</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="category"/>
                 <field name="website"/>
                 <field name="subscription_count"/>
-            </tree>
+            </list>
         </field>
     </record>
     
@@ -40,22 +40,22 @@
                         </page>
                         <page string="Alternatives moins chères">
                             <field name="alternative_ids">
-                                <tree>
+                                <list>
                                     <field name="name"/>
                                     <field name="category"/>
                                     <field name="avg_price_monthly"/>
                                     <field name="website" widget="url"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="Abonnements liés">
                             <field name="subscription_ids">
-                                <tree>
+                                <list>
                                     <field name="name"/>
                                     <field name="amount"/>
                                     <field name="billing_cycle"/>
                                     <field name="state"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                     </notebook>
@@ -67,7 +67,7 @@
     <record id="action_saas_provider" model="ir.actions.act_window">
         <field name="name">Fournisseurs SaaS</field>
         <field name="res_model">clearspend.saas.provider</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
     
 </odoo>

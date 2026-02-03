@@ -3,10 +3,10 @@
     
     <!-- Vue Tree Contrats -->
     <record id="view_contract_tree" model="ir.ui.view">
-        <field name="name">clearspend.contract.tree</field>
+        <field name="name">clearspend.contract.list</field>
         <field name="model">clearspend.contract</field>
         <field name="arch" type="xml">
-            <tree decoration-danger="state == 'expired'" 
+            <list decoration-danger="state == 'expired'" 
                   decoration-warning="state == 'expiring'"
                   decoration-muted="state == 'cancelled'">
                 <field name="name"/>
@@ -24,7 +24,7 @@
                        decoration-danger="state == 'expired'"
                        decoration-info="state == 'draft'"
                        decoration-muted="state in ('cancelled', 'renewed')"/>
-            </tree>
+            </list>
         </field>
     </record>
     
@@ -189,12 +189,10 @@
                 <separator/>
                 <filter name="filter_with_file" string="📎 Avec fichier" domain="[('contract_file', '!=', False)]"/>
                 <filter name="filter_no_file" string="Sans fichier" domain="[('contract_file', '=', False)]"/>
-                <group expand="0" string="Grouper par">
-                    <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
+                <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
                     <filter name="group_provider" string="Fournisseur" context="{'group_by': 'provider_id'}"/>
                     <filter name="group_type" string="Type" context="{'group_by': 'contract_type'}"/>
-                </group>
-            </search>
+                </search>
         </field>
     </record>
     
@@ -202,7 +200,7 @@
     <record id="action_contract" model="ir.actions.act_window">
         <field name="name">📄 Contrats</field>
         <field name="res_model">clearspend.contract</field>
-        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="context">{'search_default_filter_active': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
@@ -218,7 +216,7 @@
     <record id="action_contract_expiring" model="ir.actions.act_window">
         <field name="name">⚠️ Contrats expirant bientôt</field>
         <field name="res_model">clearspend.contract</field>
-        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="domain">[('state', 'in', ['expiring', 'active']), ('end_date', '!=', False)]</field>
         <field name="context">{'search_default_filter_expiring': 1}</field>
     </record>

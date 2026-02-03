@@ -2,10 +2,10 @@
 <odoo>
     
     <record id="view_subscription_tree" model="ir.ui.view">
-        <field name="name">clearspend.subscription.tree</field>
+        <field name="name">clearspend.subscription.list</field>
         <field name="model">clearspend.subscription</field>
         <field name="arch" type="xml">
-            <tree decoration-muted="state in ('cancelled', 'rejected')" 
+            <list decoration-muted="state in ('cancelled', 'rejected')" 
                   decoration-info="state == 'draft'"
                   decoration-warning="state in ('submitted', 'manager_approved')"
                   decoration-bf="category == 'essential'"
@@ -33,7 +33,7 @@
                 <field name="unit_price" optional="hide"/>
                 <field name="quantity" optional="hide"/>
                 <field name="currency_id" optional="hide"/>
-            </tree>
+            </list>
         </field>
     </record>
     
@@ -212,8 +212,8 @@
                 <field name="department_id"/>
                 <separator/>
                 <filter name="filter_favorites" string="⭐ Favoris" domain="[('is_favorite', '=', True)]"/>
-                <filter name="filter_active" string="✅ Actifs" domain="[('state', '=', 'active')]"/>
-                <filter name="filter_draft" string="📝 Brouillons" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_active" string="Actifs" domain="[('state', '=', 'active')]"/>
+                <filter name="filter_draft" string="Brouillons" domain="[('state', '=', 'draft')]"/>
                 <filter name="filter_pending" string="⏳ En attente" domain="[('state', 'in', ['submitted', 'manager_approved'])]"/>
                 <filter name="filter_submitted" string="📤 Soumis" domain="[('state', '=', 'submitted')]"/>
                 <filter name="filter_manager_approved" string="✅ Approuvé Manager" domain="[('state', '=', 'manager_approved')]"/>
@@ -230,15 +230,13 @@
                 <filter name="filter_my_department" string="🏬 Mon département" 
                         domain="['|', ('department_id.member_ids', 'in', [uid]), ('department_id.manager_id', '=', uid)]"/>
                 <separator/>
-                <group expand="0" string="Grouper par">
-                    <filter name="group_category" string="🎯 Priorité" context="{'group_by': 'category'}"/>
+                <filter name="group_category" string="🎯 Priorité" context="{'group_by': 'category'}"/>
                     <filter name="group_provider" string="🏢 Fournisseur" context="{'group_by': 'provider_id'}"/>
                     <filter name="group_state" string="📊 Statut" context="{'group_by': 'state'}"/>
                     <filter name="group_responsible" string="👤 Responsable" context="{'group_by': 'responsible_id'}"/>
                     <filter name="group_cycle" string="🔄 Cycle" context="{'group_by': 'billing_cycle'}"/>
                     <filter name="group_department" string="🏬 Département" context="{'group_by': 'department_id'}"/>
-                </group>
-            </search>
+                </search>
         </field>
     </record>
     
@@ -319,7 +317,7 @@
     <record id="action_subscription" model="ir.actions.act_window">
         <field name="name">💳 Abonnements</field>
         <field name="res_model">clearspend.subscription</field>
-        <field name="view_mode">tree,kanban,form,graph,pivot</field>
+        <field name="view_mode">list,kanban,form,graph,pivot</field>
         <field name="context">{
             'search_default_filter_active': 1,
             'search_default_group_category': 0,
@@ -387,7 +385,7 @@
     <record id="action_subscription_graphs" model="ir.actions.act_window">
         <field name="name">📊 Graphiques abonnements</field>
         <field name="res_model">clearspend.subscription</field>
-        <field name="view_mode">graph,pivot,tree</field>
+        <field name="view_mode">graph,pivot,list</field>
         <field name="domain">[('state', 'in', ['active', 'validated'])]</field>
     </record>
     
@@ -404,7 +402,7 @@
     <record id="action_pending_approval" model="ir.actions.act_window">
         <field name="name">⏳ En attente d'approbation</field>
         <field name="res_model">clearspend.subscription</field>
-        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="domain">[('state', 'in', ['submitted', 'manager_approved'])]</field>
         <field name="context">{'search_default_filter_pending': 1}</field>
         <field name="help" type="html">
@@ -420,7 +418,7 @@
     <record id="action_my_pending_approval" model="ir.actions.act_window">
         <field name="name">📋 Mes demandes à valider</field>
         <field name="res_model">clearspend.subscription</field>
-        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="domain">[
             ('state', 'in', ['submitted', 'manager_approved']),
             '|',
@@ -440,7 +438,7 @@
     <record id="action_rejected_subscriptions" model="ir.actions.act_window">
         <field name="name">❌ Demandes rejetées</field>
         <field name="res_model">clearspend.subscription</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="domain">[('state', '=', 'rejected')]</field>
     </record>
     

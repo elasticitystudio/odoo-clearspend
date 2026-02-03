@@ -2,10 +2,10 @@
 <odoo>
     
     <record id="view_alert_tree" model="ir.ui.view">
-        <field name="name">clearspend.alert.tree</field>
+        <field name="name">clearspend.alert.list</field>
         <field name="model">clearspend.alert</field>
         <field name="arch" type="xml">
-            <tree decoration-danger="priority == '3'" 
+            <list decoration-danger="priority == '3'" 
                   decoration-warning="priority == '2'"
                   decoration-muted="state in ('done', 'dismissed')">
                 <field name="name"/>
@@ -22,7 +22,7 @@
                        decoration-warning="state == 'seen'"
                        decoration-success="state == 'done'"
                        decoration-muted="state == 'dismissed'"/>
-            </tree>
+            </list>
         </field>
     </record>
     
@@ -105,21 +105,19 @@
                 <filter name="filter_budget" string="💰 Budget global" domain="[('alert_type', '=', 'budget')]"/>
                 <filter name="filter_budget_dept" string="🏢 Budget département" domain="[('alert_type', '=', 'budget_dept')]"/>
                 <separator/>
-                <group expand="0" string="Grouper par">
-                    <filter name="group_type" string="Type" context="{'group_by': 'alert_type'}"/>
+                <filter name="group_type" string="Type" context="{'group_by': 'alert_type'}"/>
                     <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
                     <filter name="group_priority" string="Priorité" context="{'group_by': 'priority'}"/>
                     <filter name="group_department" string="Département" context="{'group_by': 'department_id'}"/>
                     <filter name="group_subscription" string="Abonnement" context="{'group_by': 'subscription_id'}"/>
-                </group>
-            </search>
+                </search>
         </field>
     </record>
     
     <record id="action_alert" model="ir.actions.act_window">
         <field name="name">Alertes</field>
         <field name="res_model">clearspend.alert</field>
-        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="context">{'search_default_filter_active': 1}</field>
     </record>
     

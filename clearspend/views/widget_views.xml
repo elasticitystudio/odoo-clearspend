@@ -92,7 +92,7 @@
     <record id="action_clearspend_home" model="ir.actions.act_window">
         <field name="name">🏠 Accueil ClearSpend</field>
         <field name="res_model">clearspend.subscription</field>
-        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="context">{
             'search_default_filter_active': 1,
             'search_default_group_category': 1
@@ -111,7 +111,7 @@
     <record id="action_subscription_by_state" model="ir.actions.act_window">
         <field name="name">Abonnements par statut</field>
         <field name="res_model">clearspend.subscription</field>
-        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="context">{
             'search_default_group_state': 1
         }</field>
@@ -121,7 +121,7 @@
     <record id="action_subscription_by_provider" model="ir.actions.act_window">
         <field name="name">Abonnements par fournisseur</field>
         <field name="res_model">clearspend.subscription</field>
-        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="context">{
             'search_default_filter_active': 1,
             'search_default_group_provider': 1
@@ -144,7 +144,7 @@
     <record id="action_favorites" model="ir.actions.act_window">
         <field name="name">⭐ Mes favoris</field>
         <field name="res_model">clearspend.subscription</field>
-        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="domain">[('is_favorite', '=', True)]</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
@@ -159,7 +159,7 @@
     <record id="action_upcoming_renewals" model="ir.actions.act_window">
         <field name="name">🔄 Renouvellements proches</field>
         <field name="res_model">clearspend.subscription</field>
-        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="domain">[
             ('state', 'in', ['active', 'validated']),
             ('renewal_date', '!=', False),

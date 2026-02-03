@@ -30,8 +30,8 @@ Gérez efficacement vos abonnements SaaS et dépenses récurrentes:
 Le menu et le dashboard s'adaptent automatiquement au mode choisi !
 Passez d'un mode à l'autre en un clic dans les paramètres.
     ''',
-    'author': 'Rise Up Éditions',
-    'website': 'https://elasticity.studio',
+    'author': 'Elasticity Studio',
+    'website': 'https://www.elasticity-studio.be',
     'category': 'Accounting/Expenses',
     'depends': ['base', 'mail', 'web'],
     'data': [

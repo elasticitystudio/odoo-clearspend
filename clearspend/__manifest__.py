@@ -72,6 +72,8 @@ Passez d'un mode à l'autre en un clic dans les paramètres.
     'application': True,
     'installable': True,
     'license': 'LGPL-3',
+    'price': 249.00,
+    'currency': 'EUR',
     'post_init_hook': '_post_init_hook',
     'external_dependencies': {
         'python': ['openpyxl', 'requests'],

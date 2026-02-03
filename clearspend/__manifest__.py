@@ -80,7 +80,7 @@ Passez d'un mode à l'autre en un clic dans les paramètres.
         'static/description/screenshot_05.png',
         'static/description/screenshot_06.png',
     ],
-    'price': 249.00,
+    'price': 149.00,
     'currency': 'EUR',
     'post_init_hook': '_post_init_hook',
     'external_dependencies': {

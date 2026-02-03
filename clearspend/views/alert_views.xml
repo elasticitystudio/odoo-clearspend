@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_alert_tree" model="ir.ui.view">
+        <field name="name">clearspend.alert.tree</field>
+        <field name="model">clearspend.alert</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="priority == '3'" 
+                  decoration-warning="priority == '2'"
+                  decoration-muted="state in ('done', 'dismissed')">
+                <field name="name"/>
+                <field name="alert_type" widget="badge"
+                       decoration-danger="alert_type in ('budget', 'budget_dept')"
+                       decoration-info="alert_type == 'renewal'"/>
+                <field name="department_id" optional="show"/>
+                <field name="subscription_id"/>
+                <field name="overage_percent" string="%" optional="show"/>
+                <field name="due_date"/>
+                <field name="priority"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'new'"
+                       decoration-warning="state == 'seen'"
+                       decoration-success="state == 'done'"
+                       decoration-muted="state == 'dismissed'"/>
+            </tree>
+        </field>
+    </record>
+    
+    <record id="view_alert_form" model="ir.ui.view">
+        <field name="name">clearspend.alert.form</field>
+        <field name="model">clearspend.alert</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="department_id" invisible="1"/>
+                <field name="alert_type" invisible="1"/>
+                <header>
+                    <button name="action_mark_seen" type="object" string="👁️ Marquer vu" 
+                            class="btn-secondary" invisible="state != 'new'"/>
+                    <button name="action_mark_done" type="object" string="✓ Traité" 
+                            class="btn-success" invisible="state in ('done', 'dismissed')"/>
+                    <button name="action_dismiss" type="object" string="✕ Ignorer" 
+                            class="btn-warning" invisible="state in ('done', 'dismissed')"
+                            confirm="Voulez-vous ignorer cette alerte ?"/>
+                    <button name="action_view_department" type="object" string="🏢 Voir département" 
+                            class="btn-primary" invisible="not department_id"/>
+                    <button name="action_view_subscriptions" type="object" string="📋 Voir abonnements" 
+                            class="btn-info" invisible="not department_id"/>
+                    <button name="action_send_email" type="object" string="📧 Envoyer" 
+                            class="btn-secondary" invisible="state in ('done', 'dismissed')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="new,seen,done"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="🔴 Critique" bg_color="bg-danger" invisible="priority != '3'"/>
+                    <widget name="web_ribbon" title="🟠 Important" bg_color="bg-warning" invisible="priority != '2'"/>
+                    
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Titre de l'alerte"/></h1>
+                    </div>
+                    
+                    <group>
+                        <group string="📋 Détails">
+                            <field name="alert_type"/>
+                            <field name="subscription_id" invisible="alert_type in ('budget', 'budget_dept')"/>
+                            <field name="department_id" invisible="alert_type != 'budget_dept'" readonly="1"/>
+                            <field name="priority" widget="radio" options="{'horizontal': true}"/>
+                        </group>
+                        <group string="📅 Dates">
+                            <field name="alert_date"/>
+                            <field name="due_date"/>
+                        </group>
+                    </group>
+                    
+                    <!-- Section budget (visible uniquement pour les alertes budget) -->
+                    <group string="💰 Détail Budget" invisible="alert_type not in ('budget', 'budget_dept')">
+                        <group>
+                            <field name="budget_amount" string="Budget mensuel"/>
+                            <field name="current_amount" string="Dépenses actuelles"/>
+                        </group>
+                        <group>
+                            <field name="overage_percent" widget="progressbar" string="Utilisation"/>
+                        </group>
+                    </group>
+                    
+                    <separator string="📝 Description"/>
+                    <field name="description" nolabel="1" 
+                           placeholder="Détails de l'alerte..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <record id="view_alert_search" model="ir.ui.view">
+        <field name="name">clearspend.alert.search</field>
+        <field name="model">clearspend.alert</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="subscription_id"/>
+                <field name="department_id"/>
+                <filter name="filter_new" string="Nouveaux" domain="[('state', '=', 'new')]"/>
+                <filter name="filter_active" string="À traiter" domain="[('state', 'in', ['new', 'seen'])]"/>
+                <filter name="filter_urgent" string="🔴 Urgent" domain="[('priority', 'in', ['2', '3'])]"/>
+                <separator/>
+                <filter name="filter_renewal" string="🔄 Renouvellements" domain="[('alert_type', '=', 'renewal')]"/>
+                <filter name="filter_budget" string="💰 Budget global" domain="[('alert_type', '=', 'budget')]"/>
+                <filter name="filter_budget_dept" string="🏢 Budget département" domain="[('alert_type', '=', 'budget_dept')]"/>
+                <separator/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_type" string="Type" context="{'group_by': 'alert_type'}"/>
+                    <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
+                    <filter name="group_priority" string="Priorité" context="{'group_by': 'priority'}"/>
+                    <filter name="group_department" string="Département" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_subscription" string="Abonnement" context="{'group_by': 'subscription_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <record id="action_alert" model="ir.actions.act_window">
+        <field name="name">Alertes</field>
+        <field name="res_model">clearspend.alert</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+    
+    <record id="action_generate_alerts" model="ir.actions.server">
+        <field name="name">Générer les alertes</field>
+        <field name="model_id" ref="model_clearspend_alert"/>
+        <field name="state">code</field>
+        <field name="code">action = model.generate_renewal_alerts()</field>
+    </record>
+    
+    <record id="action_update_badge" model="ir.actions.server">
+        <field name="name">Actualiser badge alertes</field>
+        <field name="model_id" ref="model_clearspend_alert"/>
+        <field name="state">code</field>
+        <field name="code">model.update_menu_badge()</field>
+    </record>
+    
+    <!-- Action pour vérifier tous les budgets (global + départements) -->
+    <record id="action_check_all_budgets" model="ir.actions.server">
+        <field name="name">🔍 Vérifier tous les budgets</field>
+        <field name="model_id" ref="model_clearspend_alert"/>
+        <field name="state">code</field>
+        <field name="code">action = model.generate_renewal_alerts()</field>
+    </record>
+    
+</odoo>

@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- ============================================ -->
+    <!-- DÉPARTEMENTS - TREE VIEW -->
+    <!-- ============================================ -->
+    <record id="view_department_tree" model="ir.ui.view">
+        <field name="name">clearspend.department.tree</field>
+        <field name="model">clearspend.department</field>
+        <field name="arch" type="xml">
+            <tree string="Départements" decoration-warning="budget_used_percent &gt; 80" decoration-danger="budget_used_percent &gt; 100">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="manager_id" widget="many2one_avatar_user"/>
+                <field name="subscription_count"/>
+                <field name="total_monthly" sum="Total mensuel"/>
+                <field name="monthly_budget"/>
+                <field name="budget_used_percent" widget="progressbar"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'active'"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- DÉPARTEMENTS - KANBAN VIEW -->
+    <!-- ============================================ -->
+    <record id="view_department_kanban" model="ir.ui.view">
+        <field name="name">clearspend.department.kanban</field>
+        <field name="model">clearspend.department</field>
+        <field name="arch" type="xml">
+            <kanban quick_create="false" class="o_kanban_mobile">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="manager_id"/>
+                <field name="subscription_count"/>
+                <field name="total_monthly"/>
+                <field name="monthly_budget"/>
+                <field name="budget_used_percent"/>
+                <field name="color"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click" style="padding: 0; border-radius: 8px; overflow: hidden; margin: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <div style="background: linear-gradient(135deg, #1e3d5c 0%, #3eb8a5 100%); color: white; padding: 15px;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong style="font-size: 1.2em;"><field name="name"/></strong>
+                                        <div t-if="record.code.value" style="opacity: 0.7;">
+                                            <field name="code"/>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div style="font-size: 1.5em; font-weight: bold;">
+                                            <field name="subscription_count"/>
+                                        </div>
+                                        <small>abonnements</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="padding: 15px; background: white;">
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <small class="text-muted">Coût mensuel</small>
+                                        <div style="font-size: 1.3em; font-weight: 600; color: #1e3d5c;">
+                                            <field name="total_monthly"/> €
+                                        </div>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <small class="text-muted">Budget</small>
+                                        <div style="font-size: 1.1em;">
+                                            <field name="monthly_budget"/> €
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="progress" style="height: 10px; border-radius: 5px;">
+                                        <div class="progress-bar" role="progressbar" 
+                                             t-attf-style="width: #{Math.min(record.budget_used_percent.raw_value, 100)}%; background: #{record.budget_used_percent.raw_value > 100 ? '#dc3545' : record.budget_used_percent.raw_value > 80 ? '#f5a623' : '#3eb8a5'};">
+                                        </div>
+                                    </div>
+                                    <small t-attf-class="#{record.budget_used_percent.raw_value > 100 ? 'text-danger' : record.budget_used_percent.raw_value > 80 ? 'text-warning' : 'text-muted'}">
+                                        <field name="budget_used_percent" digits="[10,0]"/>% du budget
+                                    </small>
+                                </div>
+                                <div t-if="record.manager_id.value" class="mt-2 text-muted">
+                                    <small>👤 <field name="manager_id"/></small>
+                                </div>
+                                <div t-if="record.state.raw_value == 'draft'" class="mt-2">
+                                    <span class="badge bg-info">Brouillon</span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- DÉPARTEMENTS - FORM VIEW -->
+    <!-- ============================================ -->
+    <record id="view_department_form" model="ir.ui.view">
+        <field name="name">clearspend.department.form</field>
+        <field name="model">clearspend.department</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_validate" type="object" string="✓ Valider" 
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_draft" type="object" string="↩ Brouillon" 
+                            class="btn-secondary" invisible="state != 'active'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,active"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_subscriptions" type="object" class="oe_stat_button" icon="fa-refresh">
+                            <field name="subscription_count" widget="statinfo" string="Abonnements"/>
+                        </button>
+                        <button name="action_view_invoices" type="object" class="oe_stat_button" icon="fa-file-text-o">
+                            <span>Factures</span>
+                        </button>
+                    </div>
+                    
+                    <widget name="web_ribbon" title="Dépassement" bg_color="bg-danger" 
+                            invisible="budget_used_percent &lt;= 100"/>
+                    
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nom du département"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="📋 Informations">
+                            <field name="code" placeholder="IT, RH, MKT..."/>
+                            <field name="description"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="👥 Équipe">
+                            <field name="manager_id"/>
+                            <field name="member_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group string="💰 Budget">
+                            <field name="monthly_budget"/>
+                            <field name="yearly_budget"/>
+                        </group>
+                        <group string="📊 Statistiques">
+                            <field name="total_monthly" readonly="1"/>
+                            <field name="total_yearly" readonly="1"/>
+                            <field name="budget_used_percent" widget="progressbar" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- DÉPARTEMENTS - SEARCH VIEW -->
+    <!-- ============================================ -->
+    <record id="view_department_search" model="ir.ui.view">
+        <field name="name">clearspend.department.search</field>
+        <field name="model">clearspend.department</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="manager_id"/>
+                <filter name="filter_draft" string="📝 Brouillons" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_active" string="✅ Actifs" domain="[('state', '=', 'active')]"/>
+                <separator/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_manager" string="Responsable" context="{'group_by': 'manager_id'}"/>
+                    <filter name="group_state" string="État" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- DÉPARTEMENTS - GRAPH VIEW -->
+    <!-- ============================================ -->
+    <record id="view_department_graph" model="ir.ui.view">
+        <field name="name">clearspend.department.graph</field>
+        <field name="model">clearspend.department</field>
+        <field name="arch" type="xml">
+            <graph string="Dépenses par département" type="bar">
+                <field name="name"/>
+                <field name="total_monthly" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
+    <record id="view_department_pivot" model="ir.ui.view">
+        <field name="name">clearspend.department.pivot</field>
+        <field name="model">clearspend.department</field>
+        <field name="arch" type="xml">
+            <pivot string="Analyse par département">
+                <field name="name" type="row"/>
+                <field name="total_monthly" type="measure"/>
+                <field name="monthly_budget" type="measure"/>
+                <field name="subscription_count" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- ACTIONS -->
+    <!-- ============================================ -->
+    <record id="action_department" model="ir.actions.act_window">
+        <field name="name">🏢 Départements</field>
+        <field name="res_model">clearspend.department</field>
+        <field name="view_mode">kanban,tree,form,graph,pivot</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez votre premier département
+            </p>
+            <p>
+                Organisez vos dépenses par département pour faciliter l'analyse CFO.
+            </p>
+        </field>
+    </record>
+    
+    <record id="action_department_analysis" model="ir.actions.act_window">
+        <field name="name">📊 Analyse par département</field>
+        <field name="res_model">clearspend.subscription</field>
+        <field name="view_mode">graph,pivot,tree</field>
+        <field name="domain">[('state', 'in', ['active', 'validated'])]</field>
+        <field name="context">{
+            'search_default_group_department': 1
+        }</field>
+    </record>
+    
+    <!-- Action CFO - Vue complète par département -->
+    <record id="action_cfo_department_analysis" model="ir.actions.act_window">
+        <field name="name">👔 Analyse CFO par Département</field>
+        <field name="res_model">clearspend.department</field>
+        <field name="view_mode">kanban,tree,graph,pivot</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Vue CFO - Analyse consolidée
+            </p>
+            <p>
+                Visualisez les dépenses et budgets de tous les départements.
+                Les cartes indiquent le statut budgétaire:
+                🟢 OK | 🟠 &gt;80% | 🔴 Dépassement
+            </p>
+        </field>
+    </record>
+    
+    <!-- Vue Graph pour les abonnements par département -->
+    <record id="view_subscription_graph_by_department" model="ir.ui.view">
+        <field name="name">clearspend.subscription.graph.department</field>
+        <field name="model">clearspend.subscription</field>
+        <field name="arch" type="xml">
+            <graph string="Coûts par département" type="bar">
+                <field name="department_id"/>
+                <field name="amount_eur" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
+    <!-- Vue Pivot détaillée pour CFO -->
+    <record id="view_subscription_pivot_cfo" model="ir.ui.view">
+        <field name="name">clearspend.subscription.pivot.cfo</field>
+        <field name="model">clearspend.subscription</field>
+        <field name="arch" type="xml">
+            <pivot string="Analyse CFO">
+                <field name="department_id" type="row"/>
+                <field name="category" type="col"/>
+                <field name="amount_eur" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    
+</odoo>

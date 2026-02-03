@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_dashboard_form" model="ir.ui.view">
+        <field name="name">clearspend.dashboard.form</field>
+        <field name="model">clearspend.dashboard</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0">
+                <sheet>
+                    <!-- Champs invisibles pour le mode -->
+                    <field name="is_simple_mode" invisible="1"/>
+                    <field name="is_advanced_mode" invisible="1"/>
+                    
+                    <!-- Header avec titre et nom société -->
+                    <div class="text-center mb-4 p-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;">
+                        <div class="d-flex justify-content-center align-items-center gap-2 mb-1">
+                            <h1 class="text-white mb-0">🎛️ Cockpit FinOps</h1>
+                            <span class="badge" style="background: rgba(255,255,255,0.2); color: white; font-size: 0.9em;">
+                                <field name="current_mode" readonly="1" nolabel="1"/>
+                            </span>
+                        </div>
+                        <h4 class="text-white mb-1"><field name="company_name" readonly="1" nolabel="1"/></h4>
+                        <small class="text-white-50">Vue d'ensemble de vos dépenses SaaS</small>
+                    </div>
+                    
+                    <!-- ============================================ -->
+                    <!-- SECTION 1: Score + KPIs principaux -->
+                    <!-- ============================================ -->
+                    <div class="row mb-4">
+                        <!-- Score FinOps avec jauge visuelle -->
+                        <div class="col-md-3">
+                            <div class="card h-100 text-center" style="border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3">🏆 Score FinOps</h6>
+                                    <div style="position: relative; width: 140px; height: 140px; margin: 0 auto;">
+                                        <svg viewBox="0 0 36 36" style="transform: rotate(-90deg);">
+                                            <!-- Cercle de fond -->
+                                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                                  fill="none" stroke="#e0e0e0" stroke-width="3.5"/>
+                                            <!-- Cercle de progression - couleur vive -->
+                                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                                  fill="none" stroke="#4CAF50" stroke-width="3.5"
+                                                  stroke-dasharray="85, 100"
+                                                  stroke-linecap="round"/>
+                                        </svg>
+                                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                            <span style="font-size: 32px; font-weight: bold; color: #333;"><field name="finops_score"/></span>
+                                            <br/><small style="color: #888;">/100</small>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <span class="badge" style="font-size: 1.3em; padding: 10px 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                            <field name="finops_grade"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- KPIs Dépenses -->
+                        <div class="col-md-5">
+                            <div class="card h-100" style="border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3">💰 Dépenses SaaS</h6>
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <div class="p-3" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 10px;">
+                                                <small class="text-white">MENSUEL</small>
+                                                <h3 class="text-white mb-0"><field name="total_monthly" widget="float" digits="[10,0]"/> €</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="p-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;">
+                                                <small class="text-white">ANNUEL</small>
+                                                <h3 class="text-white mb-0"><field name="total_yearly" widget="float" digits="[10,0]"/> €</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3 text-center">
+                                        <div class="col-4">
+                                            <button name="action_open_subscriptions" type="object" class="btn btn-light w-100">
+                                                <h4 class="mb-0"><field name="subscription_count"/></h4>
+                                                <small>Abonnements</small>
+                                            </button>
+                                        </div>
+                                        <div class="col-4">
+                                            <button name="action_open_providers" type="object" class="btn btn-light w-100">
+                                                <h4 class="mb-0"><field name="provider_count"/></h4>
+                                                <small>Fournisseurs</small>
+                                            </button>
+                                        </div>
+                                        <div class="col-4">
+                                            <button name="action_open_alerts" type="object" class="btn btn-light w-100">
+                                                <h4 class="mb-0 text-warning"><field name="alert_count"/></h4>
+                                                <small>Alertes</small>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Budget avec barre de progression -->
+                        <div class="col-md-4">
+                            <div class="card h-100" style="border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3">📊 Budget mensuel</h6>
+                                    <div class="text-center mb-3">
+                                        <span style="font-size: 2.5em;"><field name="budget_status"/></span>
+                                    </div>
+                                    <div class="progress mb-1" style="height: 30px; border-radius: 15px; background-color: #e9ecef;">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: 75%; background: linear-gradient(90deg, #28a745, #20c997); border-radius: 15px;">
+                                        </div>
+                                    </div>
+                                    <div class="text-center mb-3">
+                                        <strong style="font-size: 1.2em;"><field name="budget_used_percent" widget="float" digits="[10,0]"/> %</strong>
+                                        <small class="text-muted"> utilisé</small>
+                                    </div>
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <span class="text-muted">Budget:</span><br/>
+                                            <strong><field name="budget_monthly" widget="float" digits="[10,0]"/> €</strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <span class="text-muted">Reste:</span><br/>
+                                            <strong class="text-success"><field name="budget_remaining" widget="float" digits="[10,0]"/> €</strong>
+                                        </div>
+                                    </div>
+                                    <button name="action_open_budgets" type="object" class="btn btn-sm btn-outline-primary w-100 mt-3">
+                                        Gérer les budgets
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ============================================ -->
+                    <!-- SECTION 2: Anomalies + Économies + Contrats -->
+                    <!-- MODE AVANCÉ UNIQUEMENT -->
+                    <!-- ============================================ -->
+                    <div class="row mb-4" invisible="is_simple_mode">
+                        <!-- Anomalies -->
+                        <div class="col-md-4">
+                            <div class="card h-100" style="border-left: 4px solid #dc3545;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="mb-0">🔍 Anomalies</h6>
+                                        <span class="badge bg-danger"><field name="anomaly_count"/></span>
+                                    </div>
+                                    <div class="text-center py-2">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <h3 class="text-danger mb-0"><field name="anomaly_critical"/></h3>
+                                                <small class="text-muted">Critiques</small>
+                                            </div>
+                                            <div class="col-6">
+                                                <h3 class="text-warning mb-0"><field name="anomaly_impact" widget="float" digits="[10,0]"/>€</h3>
+                                                <small class="text-muted">Impact/an</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <button name="action_open_anomalies" type="object" class="btn btn-outline-danger btn-sm w-100 mb-1">
+                                            Voir les anomalies
+                                        </button>
+                                        <button name="action_detect_anomalies" type="object" class="btn btn-outline-secondary btn-sm w-100">
+                                            🔄 Relancer détection
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Économies -->
+                        <div class="col-md-4">
+                            <div class="card h-100" style="border-left: 4px solid #28a745;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="mb-0">💡 Économies</h6>
+                                        <span class="badge bg-success"><field name="recommendation_count"/></span>
+                                    </div>
+                                    <div class="text-center py-3">
+                                        <h2 class="text-success mb-0">
+                                            <field name="potential_savings" widget="float" digits="[10,0]"/> €
+                                        </h2>
+                                        <small class="text-muted">économies potentielles / an</small>
+                                    </div>
+                                    <button name="action_open_recommendations" type="object" class="btn btn-outline-success btn-sm w-100 mt-2">
+                                        Voir les recommandations
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contrats -->
+                        <div class="col-md-4">
+                            <div class="card h-100" style="border-left: 4px solid #6c757d;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="mb-0">📄 Contrats</h6>
+                                        <span class="badge bg-secondary"><field name="contract_count"/></span>
+                                    </div>
+                                    <div class="text-center py-2">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <h3 class="mb-0"><field name="contract_count"/></h3>
+                                                <small class="text-muted">Actifs</small>
+                                            </div>
+                                            <div class="col-6">
+                                                <h3 class="text-warning mb-0"><field name="contract_expiring_count"/></h3>
+                                                <small class="text-muted">Expirent bientôt</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <button name="action_open_contracts" type="object" class="btn btn-outline-secondary btn-sm w-100 mb-1">
+                                            Tous les contrats
+                                        </button>
+                                        <button name="action_open_contracts_expiring" type="object" class="btn btn-outline-warning btn-sm w-100">
+                                            ⚠️ À renouveler
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ============================================ -->
+                    <!-- SECTION 2b: Inbox Factures -->
+                    <!-- MODE AVANCÉ UNIQUEMENT -->
+                    <!-- ============================================ -->
+                    <div class="row mb-4" invisible="is_simple_mode">
+                        <div class="col-12">
+                            <div class="card" style="border-left: 4px solid #17a2b8;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">📥 Inbox Factures</h6>
+                                            <small class="text-muted">Factures en attente de traitement</small>
+                                        </div>
+                                        <div class="d-flex gap-3 align-items-center">
+                                            <div class="text-center px-3">
+                                                <h3 class="mb-0 text-info"><field name="invoice_inbox_count"/></h3>
+                                                <small class="text-muted">dans l'inbox</small>
+                                            </div>
+                                            <div class="text-center px-3">
+                                                <h3 class="mb-0 text-warning"><field name="invoice_unmatched_count"/></h3>
+                                                <small class="text-muted">non associées</small>
+                                            </div>
+                                            <div class="d-flex flex-column gap-1">
+                                                <button name="action_open_invoice_inbox" type="object" class="btn btn-info btn-sm">
+                                                    📥 Ouvrir l'inbox
+                                                </button>
+                                                <button name="action_sync_odoo_invoices" type="object" class="btn btn-outline-secondary btn-sm">
+                                                    🔄 Sync Odoo
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ============================================ -->
+                    <!-- SECTION 2c: Prévisions -->
+                    <!-- MODE AVANCÉ UNIQUEMENT -->
+                    <!-- ============================================ -->
+                    <div class="row mb-4" invisible="is_simple_mode">
+                        <div class="col-12">
+                            <div class="card" style="border-left: 4px solid #11998e;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">📈 Prévisions</h6>
+                                            <small class="text-muted">Projection de vos coûts futurs</small>
+                                        </div>
+                                        <div class="d-flex gap-4 align-items-center">
+                                            <div class="text-center px-3">
+                                                <h4 class="mb-0 text-secondary"><field name="total_monthly" widget="float" digits="[10,0]"/> €</h4>
+                                                <small class="text-muted">coût actuel/mois</small>
+                                            </div>
+                                            <div class="text-center px-3" style="border-left: 1px solid #dee2e6;">
+                                                <h4 class="mb-0 text-success"><field name="forecast_monthly" widget="float" digits="[10,0]"/> €</h4>
+                                                <small class="text-muted">projeté/mois (12m)</small>
+                                            </div>
+                                            <div class="text-center px-3" style="border-left: 1px solid #dee2e6;">
+                                                <h4 class="mb-0">
+                                                    <span class="text-warning" invisible="forecast_variation &lt;= 0">+</span>
+                                                    <field name="forecast_variation" widget="float" digits="[10,1]"/>%
+                                                </h4>
+                                                <small class="text-muted">évolution</small>
+                                            </div>
+                                            <button name="action_open_forecast" type="object" class="btn btn-success btn-sm">
+                                                📈 Voir les prévisions
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ============================================ -->
+                    <!-- SECTION GRAPHIQUES -->
+                    <!-- MODE AVANCÉ UNIQUEMENT -->
+                    <!-- ============================================ -->
+                    <div class="row mb-4" invisible="is_simple_mode">
+                        <!-- Graphique évolution -->
+                        <div class="col-md-6">
+                            <div class="card h-100" style="border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3">📈 Évolution des coûts (6 mois)</h6>
+                                    <field name="chart_evolution_html" nolabel="1"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Top fournisseurs -->
+                        <div class="col-md-6">
+                            <div class="card h-100" style="border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3">🏢 Top 5 Fournisseurs (coût/mois)</h6>
+                                    <field name="chart_top_providers_html" nolabel="1"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bouton vers graphiques interactifs - MODE AVANCÉ UNIQUEMENT -->
+                    <div class="text-center mb-4" invisible="is_simple_mode">
+                        <button name="action_open_charts_interactive" type="object" 
+                                class="btn btn-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; border-radius: 30px;">
+                            📊 Voir tous les graphiques interactifs →
+                        </button>
+                    </div>
+                    
+                    <!-- ============================================ -->
+                    <!-- SECTION 3: Répartition par priorité (barres) -->
+                    <!-- ============================================ -->
+                    <div class="card mb-4" style="border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        <div class="card-body">
+                            <h6 class="text-muted mb-4">🎯 Répartition par priorité</h6>
+                            
+                            <!-- Essentiels -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>🔴 <strong>Essentiels</strong> (<field name="essential_count"/> abo.)</span>
+                                    <span>
+                                        <field name="essential_amount" widget="float" digits="[10,0]"/> € 
+                                        <small class="text-muted">(<field name="essential_percent" widget="float" digits="[10,0]"/>%)</small>
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 20px; border-radius: 10px;">
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 45%;"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Importants -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>🟠 <strong>Importants</strong> (<field name="important_count"/> abo.)</span>
+                                    <span>
+                                        <field name="important_amount" widget="float" digits="[10,0]"/> €
+                                        <small class="text-muted">(<field name="important_percent" widget="float" digits="[10,0]"/>%)</small>
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 20px; border-radius: 10px;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 35%;"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Optionnels -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>🟡 <strong>Optionnels</strong> (<field name="optional_count"/> abo.)</span>
+                                    <span>
+                                        <field name="optional_amount" widget="float" digits="[10,0]"/> €
+                                        <small class="text-muted">(<field name="optional_percent" widget="float" digits="[10,0]"/>%)</small>
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 20px; border-radius: 10px;">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 15%;"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- À revoir -->
+                            <div class="mb-0">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>⚪ <strong>À revoir</strong> (<field name="to_review_count"/> abo.)</span>
+                                    <span>
+                                        <field name="to_review_amount" widget="float" digits="[10,0]"/> €
+                                        <small class="text-muted">(<field name="to_review_percent" widget="float" digits="[10,0]"/>%)</small>
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 20px; border-radius: 10px;">
+                                    <div class="progress-bar bg-secondary" role="progressbar" style="width: 5%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ============================================ -->
+                    <!-- SECTION 4: Infos complémentaires -->
+                    <!-- ============================================ -->
+                    <div class="row">
+                        <!-- Coût par employé -->
+                        <div class="col-md-4">
+                            <div class="card h-100" style="border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3">👥 Coût par employé</h6>
+                                    <div class="text-center">
+                                        <div class="mb-3">
+                                            <span style="font-size: 3em;">👤</span>
+                                            <h3 class="mb-0"><field name="employee_count"/> employés</h3>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="p-2 bg-light rounded">
+                                                    <small class="text-muted">Par mois</small>
+                                                    <h5 class="mb-0"><field name="cost_per_employee_monthly" widget="float" digits="[10,0]"/> €</h5>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="p-2 bg-light rounded">
+                                                    <small class="text-muted">Par an</small>
+                                                    <h5 class="mb-0"><field name="cost_per_employee_yearly" widget="float" digits="[10,0]"/> €</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Top fournisseurs -->
+                        <div class="col-md-4">
+                            <div class="card h-100" style="border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3">🏆 Top 5 fournisseurs</h6>
+                                    <div style="white-space: pre-line; font-family: monospace; font-size: 0.9em;">
+                                        <field name="top_providers"/>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button name="action_open_providers" type="object" class="btn btn-sm btn-outline-primary w-100 mb-1">
+                                            Voir fournisseurs
+                                        </button>
+                                        <button name="action_open_graphs" type="object" class="btn btn-sm btn-outline-secondary w-100">
+                                            📊 Analyses graphiques
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Répartition par cycle -->
+                        <div class="col-md-4">
+                            <div class="card h-100" style="border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3">📅 Cycles de facturation</h6>
+                                    <div class="text-center">
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <div class="p-2">
+                                                    <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                                                        <span class="text-white" style="font-size: 1.5em;"><field name="monthly_sub_count"/></span>
+                                                    </div>
+                                                    <small class="text-muted mt-1 d-block">Mensuels</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="p-2">
+                                                    <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #11998e, #38ef7d); margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                                                        <span class="text-white" style="font-size: 1.5em;"><field name="quarterly_sub_count"/></span>
+                                                    </div>
+                                                    <small class="text-muted mt-1 d-block">Trimestriels</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="p-2">
+                                                    <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #f093fb, #f5576c); margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                                                        <span class="text-white" style="font-size: 1.5em;"><field name="yearly_sub_count"/></span>
+                                                    </div>
+                                                    <small class="text-muted mt-1 d-block">Annuels</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ============================================ -->
+                    <!-- SECTION 5: Détails du score -->
+                    <!-- ============================================ -->
+                    <div class="card mt-4" style="border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Score visuel à gauche -->
+                                <div class="col-md-3 text-center" style="border-right: 1px solid #eee;">
+                                    <h6 class="text-muted mb-3">🏆 Score FinOps</h6>
+                                    <div style="position: relative; width: 120px; height: 120px; margin: 0 auto;">
+                                        <svg viewBox="0 0 36 36" style="transform: rotate(-90deg);">
+                                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                                  fill="none" stroke="#e0e0e0" stroke-width="4"/>
+                                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                                  fill="none" stroke="#667eea" stroke-width="4"
+                                                  stroke-dasharray="100, 100"
+                                                  stroke-linecap="round"/>
+                                        </svg>
+                                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                            <span style="font-size: 28px; font-weight: bold; color: #667eea;"><field name="finops_score"/></span>
+                                            <br/><small style="color: #888; font-size: 12px;">/100</small>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <span class="badge" style="font-size: 1.2em; padding: 8px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                            <field name="finops_grade"/>
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Détails à droite -->
+                                <div class="col-md-9">
+                                    <h6 class="text-muted mb-3">📋 Détails du calcul</h6>
+                                    <div class="p-3 bg-light rounded" style="font-family: monospace; font-size: 0.9em; white-space: pre-line; max-height: 200px; overflow-y: auto;">
+                                        <field name="score_details"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <record id="action_dashboard" model="ir.actions.server">
+        <field name="name">🎛️ Cockpit FinOps</field>
+        <field name="model_id" ref="model_clearspend_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">action = model.open_dashboard()</field>
+    </record>
+    
+</odoo>

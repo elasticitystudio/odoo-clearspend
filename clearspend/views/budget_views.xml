@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Vue Tree Budget -->
+    <record id="view_budget_tree" model="ir.ui.view">
+        <field name="name">clearspend.budget.tree</field>
+        <field name="model">clearspend.budget</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="variance_total &lt; 0" 
+                  decoration-warning="variance_percent &lt; 10 and variance_percent >= 0">
+                <field name="variance_percent" column_invisible="1"/>
+                <field name="name"/>
+                <field name="budget_total" sum="Budget total"/>
+                <field name="spent_total" sum="Dépensé total"/>
+                <field name="variance_total" sum="Écart total"/>
+                <field name="status_indicator"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'approved'"
+                       decoration-muted="state == 'closed'"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Vue Form Budget -->
+    <record id="view_budget_form" model="ir.ui.view">
+        <field name="name">clearspend.budget.form</field>
+        <field name="model">clearspend.budget</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_approve" type="object" string="✅ Approuver" 
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_close" type="object" string="🔒 Clôturer" 
+                            class="btn-secondary" invisible="state != 'approved'"/>
+                    <button name="action_draft" type="object" string="↩️ Brouillon" 
+                            class="btn-secondary" invisible="state == 'draft'"/>
+                    <button name="action_refresh" type="object" string="🔄 Actualiser" 
+                            class="btn-info"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <span class="me-3"><field name="status_indicator"/></span>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="📅 Période">
+                            <field name="month"/>
+                            <field name="year"/>
+                        </group>
+                        <group string="📊 Résumé">
+                            <field name="variance_total"/>
+                            <field name="variance_percent" widget="percentage"/>
+                        </group>
+                    </group>
+                    
+                    <!-- Tableau comparatif - pleine largeur -->
+                    <separator string="💰 Budget vs Dépenses"/>
+                    <div class="row">
+                        <div class="col-12">
+                            <table class="table table-bordered table-striped" style="width: 100%;">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 30%;">Catégorie</th>
+                                        <th style="width: 20%;" class="text-end">Budget (€)</th>
+                                        <th style="width: 25%;" class="text-end">Dépensé (€)</th>
+                                        <th style="width: 25%;" class="text-end">Écart (€)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>🔴 <strong>Essentiels</strong></td>
+                                        <td class="text-end"><field name="budget_essential" nolabel="1"/></td>
+                                        <td class="text-end"><field name="spent_essential" nolabel="1"/></td>
+                                        <td class="text-end">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>🟠 <strong>Importants</strong></td>
+                                        <td class="text-end"><field name="budget_important" nolabel="1"/></td>
+                                        <td class="text-end"><field name="spent_important" nolabel="1"/></td>
+                                        <td class="text-end">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>🟡 <strong>Optionnels</strong></td>
+                                        <td class="text-end"><field name="budget_optional" nolabel="1"/></td>
+                                        <td class="text-end"><field name="spent_optional" nolabel="1"/></td>
+                                        <td class="text-end">-</td>
+                                    </tr>
+                                    <tr class="table-secondary fw-bold">
+                                        <td><strong>TOTAL</strong></td>
+                                        <td class="text-end"><field name="budget_total" nolabel="1"/></td>
+                                        <td class="text-end"><field name="spent_total" nolabel="1"/></td>
+                                        <td class="text-end"><field name="variance_total" nolabel="1"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <separator string="📝 Notes"/>
+                    <field name="notes" placeholder="Notes sur ce budget..."/>
+                    
+                    <separator string="📋 Abonnements inclus"/>
+                    <field name="subscription_ids" readonly="1" invisible="not subscription_ids">
+                        <tree>
+                            <field name="name"/>
+                            <field name="provider_id"/>
+                            <field name="category"/>
+                            <field name="amount"/>
+                            <field name="billing_cycle"/>
+                        </tree>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Vue Pivot Budget -->
+    <record id="view_budget_pivot" model="ir.ui.view">
+        <field name="name">clearspend.budget.pivot</field>
+        <field name="model">clearspend.budget</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="year" type="row"/>
+                <field name="month" type="row"/>
+                <field name="budget_total" type="measure"/>
+                <field name="spent_total" type="measure"/>
+                <field name="variance_total" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    
+    <!-- Vue Graph Budget -->
+    <record id="view_budget_graph" model="ir.ui.view">
+        <field name="name">clearspend.budget.graph</field>
+        <field name="model">clearspend.budget</field>
+        <field name="arch" type="xml">
+            <graph type="bar">
+                <field name="name"/>
+                <field name="budget_total" type="measure"/>
+                <field name="spent_total" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
+    <!-- Vue Search Budget -->
+    <record id="view_budget_search" model="ir.ui.view">
+        <field name="name">clearspend.budget.search</field>
+        <field name="model">clearspend.budget</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="year"/>
+                <filter name="filter_current_year" string="Cette année" 
+                        domain="[('year', '=', ((context_today()).year))]"/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_year" string="Année" context="{'group_by': 'year'}"/>
+                    <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <!-- Action Budget -->
+    <record id="action_budget" model="ir.actions.act_window">
+        <field name="name">💰 Budgets</field>
+        <field name="res_model">clearspend.budget</field>
+        <field name="view_mode">tree,form,graph,pivot</field>
+        <field name="context">{'search_default_filter_current_year': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun budget défini
+            </p>
+            <p>
+                Définissez un budget mensuel pour suivre vos dépenses SaaS.
+            </p>
+        </field>
+    </record>
+    
+</odoo>

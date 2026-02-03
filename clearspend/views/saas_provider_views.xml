@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_saas_provider_tree" model="ir.ui.view">
+        <field name="name">clearspend.saas.provider.tree</field>
+        <field name="model">clearspend.saas.provider</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="category"/>
+                <field name="website"/>
+                <field name="subscription_count"/>
+            </tree>
+        </field>
+    </record>
+    
+    <record id="view_saas_provider_form" model="ir.ui.view">
+        <field name="name">clearspend.saas.provider.form</field>
+        <field name="model">clearspend.saas.provider</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <field name="logo" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Nom du fournisseur"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="category"/>
+                            <field name="website" widget="url"/>
+                            <field name="avg_price_monthly"/>
+                        </group>
+                        <group>
+                            <field name="subscription_count"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes">
+                            <field name="notes" placeholder="Notes..."/>
+                        </page>
+                        <page string="Alternatives moins chères">
+                            <field name="alternative_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="category"/>
+                                    <field name="avg_price_monthly"/>
+                                    <field name="website" widget="url"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Abonnements liés">
+                            <field name="subscription_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="amount"/>
+                                    <field name="billing_cycle"/>
+                                    <field name="state"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <record id="action_saas_provider" model="ir.actions.act_window">
+        <field name="name">Fournisseurs SaaS</field>
+        <field name="res_model">clearspend.saas.provider</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+</odoo>

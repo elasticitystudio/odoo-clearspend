@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Template du rapport PDF des abonnements -->
+    <template id="report_subscription_document">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2 class="text-center">Rapport des abonnements ClearSpend</h2>
+                    <p class="text-center text-muted">
+                        Généré le <t t-esc="context_timestamp.strftime('%d/%m/%Y à %H:%M')"/>
+                    </p>
+                    
+                    <br/>
+                    
+                    <!-- Résumé -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h4>Résumé</h4>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Nombre d'abonnements actifs</strong></td>
+                                    <td class="text-end"><t t-esc="len(docs)"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total mensuel estimé</strong></td>
+                                    <td class="text-end"><t t-esc="'%.2f' % total_monthly"/> €</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total annuel estimé</strong></td>
+                                    <td class="text-end"><t t-esc="'%.2f' % total_yearly"/> €</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Liste des abonnements -->
+                    <h4>Détail des abonnements</h4>
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Fournisseur</th>
+                                <th>Cycle</th>
+                                <th class="text-end">Montant</th>
+                                <th>Renouvellement</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="sub">
+                                <tr>
+                                    <td><t t-esc="sub.name"/></td>
+                                    <td><t t-esc="sub.provider_id.name or '-'"/></td>
+                                    <td>
+                                        <t t-if="sub.billing_cycle == 'monthly'">Mensuel</t>
+                                        <t t-if="sub.billing_cycle == 'quarterly'">Trimestriel</t>
+                                        <t t-if="sub.billing_cycle == 'yearly'">Annuel</t>
+                                    </td>
+                                    <td class="text-end"><t t-esc="'%.2f' % sub.amount"/> €</td>
+                                    <td><t t-esc="sub.renewal_date or '-'"/></td>
+                                    <td>
+                                        <t t-if="sub.state == 'draft'">Brouillon</t>
+                                        <t t-if="sub.state == 'validated'">Validé</t>
+                                        <t t-if="sub.state == 'active'">Actif</t>
+                                        <t t-if="sub.state == 'cancelled'">Résilié</t>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold">
+                                <td colspan="3">TOTAL</td>
+                                <td class="text-end"><t t-esc="'%.2f' % sum(docs.mapped('amount'))"/> €</td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    
+                </div>
+            </t>
+        </t>
+    </template>
+    
+    <!-- ================================== -->
+    <!-- RAPPORT MENSUEL COMPLET -->
+    <!-- ================================== -->
+    <template id="report_monthly_document">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <!-- En-tête -->
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; margin: -20px -20px 30px -20px; text-align: center;">
+                        <h1 style="margin: 0; font-size: 28px;">📊 Rapport Mensuel ClearSpend</h1>
+                        <p style="margin: 10px 0 0 0; opacity: 0.9;">
+                            <t t-esc="company.name"/> - <t t-esc="report_month"/>
+                        </p>
+                    </div>
+                    
+                    <!-- KPIs principaux -->
+                    <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+                        <div style="flex: 1; background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center; border-left: 4px solid #28a745;">
+                            <div style="font-size: 32px; font-weight: bold; color: #28a745;"><t t-esc="'%.0f' % total_monthly"/> €</div>
+                            <div style="color: #666;">Coût mensuel</div>
+                        </div>
+                        <div style="flex: 1; background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center; border-left: 4px solid #667eea;">
+                            <div style="font-size: 32px; font-weight: bold; color: #667eea;"><t t-esc="'%.0f' % total_yearly"/> €</div>
+                            <div style="color: #666;">Coût annuel</div>
+                        </div>
+                        <div style="flex: 1; background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center; border-left: 4px solid #17a2b8;">
+                            <div style="font-size: 32px; font-weight: bold; color: #17a2b8;"><t t-esc="subscription_count"/></div>
+                            <div style="color: #666;">Abonnements actifs</div>
+                        </div>
+                        <div style="flex: 1; background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center; border-left: 4px solid #ffc107;">
+                            <div style="font-size: 32px; font-weight: bold; color: #ffc107;"><t t-esc="finops_score"/>/100</div>
+                            <div style="color: #666;">Score FinOps</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Budget -->
+                    <t t-if="budget_monthly > 0">
+                        <h4>📊 Budget</h4>
+                        <div style="margin-bottom: 30px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Utilisation du budget mensuel</span>
+                                <span><t t-esc="'%.0f' % budget_percent"/>%</span>
+                            </div>
+                            <div style="height: 25px; background: #e9ecef; border-radius: 12px; overflow: hidden;">
+                                <div t-attf-style="width: {{ budget_percent if budget_percent &lt;= 100 else 100 }}%; height: 100%; background: {{ '#28a745' if budget_percent &lt; 80 else '#ffc107' if budget_percent &lt; 100 else '#dc3545' }};"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 5px; color: #666; font-size: 12px;">
+                                <span>Dépensé: <t t-esc="'%.0f' % total_monthly"/> €</span>
+                                <span>Budget: <t t-esc="'%.0f' % budget_monthly"/> €</span>
+                            </div>
+                        </div>
+                    </t>
+                    
+                    <!-- Répartition par priorité -->
+                    <h4>🎯 Répartition par priorité</h4>
+                    <table class="table table-sm" style="margin-bottom: 30px;">
+                        <thead style="background: #f8f9fa;">
+                            <tr>
+                                <th>Priorité</th>
+                                <th class="text-center">Abonnements</th>
+                                <th class="text-end">Montant/mois</th>
+                                <th class="text-end">%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🔴 Essentiels</td>
+                                <td class="text-center"><t t-esc="essential_count"/></td>
+                                <td class="text-end"><t t-esc="'%.0f' % essential_amount"/> €</td>
+                                <td class="text-end"><t t-esc="'%.0f' % essential_percent"/>%</td>
+                            </tr>
+                            <tr>
+                                <td>🟠 Importants</td>
+                                <td class="text-center"><t t-esc="important_count"/></td>
+                                <td class="text-end"><t t-esc="'%.0f' % important_amount"/> €</td>
+                                <td class="text-end"><t t-esc="'%.0f' % important_percent"/>%</td>
+                            </tr>
+                            <tr>
+                                <td>🟡 Optionnels</td>
+                                <td class="text-center"><t t-esc="optional_count"/></td>
+                                <td class="text-end"><t t-esc="'%.0f' % optional_amount"/> €</td>
+                                <td class="text-end"><t t-esc="'%.0f' % optional_percent"/>%</td>
+                            </tr>
+                            <tr>
+                                <td>⚪ À revoir</td>
+                                <td class="text-center"><t t-esc="to_review_count"/></td>
+                                <td class="text-end"><t t-esc="'%.0f' % to_review_amount"/> €</td>
+                                <td class="text-end"><t t-esc="'%.0f' % to_review_percent"/>%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <!-- Renouvellements à venir -->
+                    <t t-if="renewals">
+                        <h4>🔄 Renouvellements à venir (30 jours)</h4>
+                        <table class="table table-sm table-striped" style="margin-bottom: 30px;">
+                            <thead style="background: #fff3cd;">
+                                <tr>
+                                    <th>Abonnement</th>
+                                    <th>Fournisseur</th>
+                                    <th class="text-end">Montant</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="renewals" t-as="r">
+                                    <tr>
+                                        <td><t t-esc="r.name"/></td>
+                                        <td><t t-esc="r.provider_id.name or '-'"/></td>
+                                        <td class="text-end"><t t-esc="'%.0f' % r.amount"/> €</td>
+                                        <td><t t-esc="r.renewal_date"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
+                    
+                    <!-- Top 10 abonnements -->
+                    <h4>💰 Top 10 des abonnements (par coût)</h4>
+                    <table class="table table-sm table-striped">
+                        <thead style="background: #f8f9fa;">
+                            <tr>
+                                <th>#</th>
+                                <th>Abonnement</th>
+                                <th>Fournisseur</th>
+                                <th>Cycle</th>
+                                <th class="text-end">Montant</th>
+                                <th class="text-end">Coût/mois</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="top_subscriptions" t-as="sub">
+                                <tr>
+                                    <td><t t-esc="sub_index + 1"/></td>
+                                    <td><t t-esc="sub.name"/></td>
+                                    <td><t t-esc="sub.provider_id.name or '-'"/></td>
+                                    <td>
+                                        <t t-if="sub.billing_cycle == 'monthly'">Mensuel</t>
+                                        <t t-if="sub.billing_cycle == 'quarterly'">Trimestriel</t>
+                                        <t t-if="sub.billing_cycle == 'yearly'">Annuel</t>
+                                    </td>
+                                    <td class="text-end"><t t-esc="'%.0f' % sub.amount"/> €</td>
+                                    <td class="text-end"><t t-esc="'%.0f' % sub.monthly_cost"/> €</td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                    
+                    <!-- Pied de page -->
+                    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #dee2e6; text-align: center; color: #666; font-size: 11px;">
+                        <p>Rapport généré automatiquement par ClearSpend - <t t-esc="context_timestamp.strftime('%d/%m/%Y à %H:%M')"/></p>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+    
+    <!-- Action rapport abonnements -->
+    <record id="action_report_subscriptions" model="ir.actions.report">
+        <field name="name">Rapport des abonnements</field>
+        <field name="model">clearspend.subscription</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">clearspend.report_subscription_document</field>
+        <field name="report_file">clearspend.report_subscription_document</field>
+        <field name="print_report_name">'Rapport_ClearSpend_%s' % object.env.company.name</field>
+        <field name="binding_model_id" ref="model_clearspend_subscription"/>
+        <field name="binding_type">report</field>
+    </record>
+    
+    <!-- Action rapport mensuel -->
+    <record id="action_report_monthly" model="ir.actions.report">
+        <field name="name">Rapport mensuel ClearSpend</field>
+        <field name="model">clearspend.config</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">clearspend.report_monthly_document</field>
+        <field name="report_file">clearspend.report_monthly_document</field>
+        <field name="print_report_name">'Rapport_Mensuel_ClearSpend_%s_%s' % (object.company_id.name, time.strftime('%Y-%m'))</field>
+    </record>
+    
+</odoo>

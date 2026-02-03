@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Template email pour alerte de renouvellement -->
+    <record id="email_template_alert_renewal" model="mail.template">
+        <field name="name">ClearSpend - Alerte de renouvellement</field>
+        <field name="model_id" ref="model_clearspend_alert"/>
+        <field name="email_from">{{ user.email }}</field>
+        <field name="email_to">{{ object.subscription_id.responsible_id.email or user.email }}</field>
+        <field name="subject">🔔 ClearSpend: {{ object.name }}</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
+    <div style="background: #875A7B; color: white; padding: 20px; text-align: center;">
+        <h1 style="margin: 0;">📊 ClearSpend</h1>
+        <p style="margin: 5px 0 0 0;">Alerte de renouvellement</p>
+    </div>
+    
+    <div style="padding: 20px; border: 1px solid #ddd;">
+        <h2 style="color: #875A7B;">{{ object.name }}</h2>
+        
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Type:</strong></td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">{{ object.alert_type }}</td>
+            </tr>
+            <tr t-if="object.subscription_id">
+                <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Abonnement:</strong></td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">{{ object.subscription_id.name }}</td>
+            </tr>
+            <tr t-if="object.subscription_id">
+                <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Montant:</strong></td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">{{ object.subscription_id.amount }} €</td>
+            </tr>
+            <tr t-if="object.due_date">
+                <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Échéance:</strong></td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">{{ object.due_date }}</td>
+            </tr>
+        </table>
+        
+        <div t-if="object.description" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+            <strong>Détails:</strong><br/>
+            <span t-out="object.description"/>
+        </div>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <a t-att-href="'%s/web#id=%s&amp;model=clearspend.alert&amp;view_type=form' % (object.get_base_url(), object.id)" 
+               style="background: #875A7B; color: white; padding: 10px 30px; text-decoration: none; border-radius: 5px;">
+                Voir l'alerte
+            </a>
+        </div>
+    </div>
+    
+    <div style="padding: 15px; text-align: center; color: #666; font-size: 12px;">
+        <p>Cet email a été envoyé automatiquement par ClearSpend.</p>
+    </div>
+</div>
+        </field>
+    </record>
+    
+    <!-- Template email pour rapport mensuel -->
+    <record id="email_template_monthly_report" model="mail.template">
+        <field name="name">ClearSpend - Rapport mensuel</field>
+        <field name="model_id" ref="model_clearspend_config"/>
+        <field name="email_from">{{ user.email }}</field>
+        <field name="subject">📊 ClearSpend - Rapport mensuel SaaS</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
+    <div style="background: #875A7B; color: white; padding: 20px; text-align: center;">
+        <h1 style="margin: 0;">📊 ClearSpend</h1>
+        <p style="margin: 5px 0 0 0;">Rapport mensuel - {{ ctx.get('month_name', 'Ce mois') }}</p>
+    </div>
+    
+    <div style="padding: 20px; border: 1px solid #ddd;">
+        <h2 style="color: #875A7B;">Résumé de vos dépenses SaaS</h2>
+        
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0;">
+            <div style="flex: 1; min-width: 120px; background: #4CAF50; color: white; padding: 15px; text-align: center; border-radius: 5px;">
+                <div style="font-size: 24px; font-weight: bold;">{{ ctx.get('total_monthly', 0) }} €</div>
+                <div>Total mensuel</div>
+            </div>
+            <div style="flex: 1; min-width: 120px; background: #2196F3; color: white; padding: 15px; text-align: center; border-radius: 5px;">
+                <div style="font-size: 24px; font-weight: bold;">{{ ctx.get('subscription_count', 0) }}</div>
+                <div>Abonnements</div>
+            </div>
+            <div style="flex: 1; min-width: 120px; background: #FF9800; color: white; padding: 15px; text-align: center; border-radius: 5px;">
+                <div style="font-size: 24px; font-weight: bold;">{{ ctx.get('alert_count', 0) }}</div>
+                <div>Alertes</div>
+            </div>
+        </div>
+        
+        <div t-if="ctx.get('budget_monthly')" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+            <strong>Budget:</strong> {{ ctx.get('total_monthly', 0) }} € / {{ ctx.get('budget_monthly', 0) }} €
+            ({{ ctx.get('budget_percent', 0) }}% utilisé)
+        </div>
+        
+        <div t-if="ctx.get('upcoming_renewals')" style="margin: 20px 0;">
+            <h3 style="color: #875A7B;">🔄 Renouvellements à venir (30 jours)</h3>
+            <ul>
+                <t t-foreach="ctx.get('upcoming_renewals', [])" t-as="renewal">
+                    <li><t t-out="renewal"/></li>
+                </t>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="{{ object.get_base_url() }}/web#action=clearspend.action_dashboard" 
+               style="background: #875A7B; color: white; padding: 10px 30px; text-decoration: none; border-radius: 5px;">
+                Voir le dashboard
+            </a>
+        </div>
+    </div>
+    
+    <div style="padding: 15px; text-align: center; color: #666; font-size: 12px;">
+        <p>Rapport généré automatiquement par ClearSpend.</p>
+    </div>
+</div>
+        </field>
+    </record>
+    
+</odoo>

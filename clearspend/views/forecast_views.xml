@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_forecast_form" model="ir.ui.view">
+        <field name="name">clearspend.forecast.form</field>
+        <field name="model">clearspend.forecast</field>
+        <field name="arch" type="xml">
+            <form create="0" delete="0">
+                <sheet>
+                    <!-- Champs invisibles -->
+                    <field name="include_new_estimates" invisible="1"/>
+                    <field name="forecast_months" invisible="1"/>
+                    
+                    <!-- Header gradient -->
+                    <div class="text-center p-4 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; margin: -16px -16px 20px -16px;">
+                        <h1 style="color: white; font-weight: 300; margin: 0;">📈 Prévisions des Coûts</h1>
+                        <p style="color: rgba(255,255,255,0.8); margin: 5px 0 0 0;">Projection sur <field name="forecast_months" readonly="1" style="display: inline; color: white; font-weight: bold;"/> mois</p>
+                    </div>
+                    
+                    <!-- Paramètres compacts -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-center align-items-center gap-4 p-3" style="background: #f8f9fa; border-radius: 10px;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="text-muted">Horizon:</span>
+                                    <field name="forecast_months" widget="radio" options="{'horizontal': true}"/>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="text-muted">Inflation:</span>
+                                    <field name="inflation_rate" style="width: 60px;"/>
+                                    <span class="text-muted">%/an</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <field name="include_renewals"/>
+                                    <span class="text-muted">Renouvellements</span>
+                                </div>
+                                <button name="action_refresh" type="object" class="btn btn-primary btn-sm">
+                                    🔄 Actualiser
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 3 KPIs principaux -->
+                    <div class="row mb-4">
+                        <!-- Actuel -->
+                        <div class="col-md-4">
+                            <div class="text-center p-4" style="background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; height: 100%;">
+                                <div style="font-size: 0.9em; color: #6c757d; text-transform: uppercase; letter-spacing: 1px;">Situation Actuelle</div>
+                                <div style="font-size: 2.5em; font-weight: 300; color: #495057; margin: 10px 0;">
+                                    <field name="current_monthly" widget="float" digits="[10,0]"/> €
+                                </div>
+                                <div style="color: #6c757d;">/ mois</div>
+                                <div class="mt-3">
+                                    <span class="badge" style="background: #6c757d; font-size: 0.85em; padding: 8px 15px;">
+                                        <field name="subscription_count"/> abonnements
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Projeté -->
+                        <div class="col-md-4">
+                            <div class="text-center p-4" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 15px; height: 100%;">
+                                <div style="font-size: 0.9em; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 1px;">Projection Moyenne</div>
+                                <div style="font-size: 2.5em; font-weight: 300; color: white; margin: 10px 0;">
+                                    <field name="projected_monthly_avg" widget="float" digits="[10,0]"/> €
+                                </div>
+                                <div style="color: rgba(255,255,255,0.8);">/ mois (moyenne)</div>
+                                <div class="mt-3">
+                                    <span class="badge" style="background: rgba(255,255,255,0.2); font-size: 0.85em; padding: 8px 15px;">
+                                        <field name="projected_yearly" widget="float" digits="[10,0]"/> € / an
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Évolution -->
+                        <div class="col-md-4">
+                            <div class="text-center p-4" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 15px; height: 100%;">
+                                <div style="font-size: 0.9em; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 1px;">Évolution Annuelle</div>
+                                <div style="font-size: 2.5em; font-weight: 300; color: white; margin: 10px 0;">
+                                    <span invisible="variation_amount &lt;= 0">+</span><field name="variation_amount" widget="float" digits="[10,0]"/> €
+                                </div>
+                                <div class="mt-2">
+                                    <span class="badge" style="background: rgba(255,255,255,0.3); font-size: 1.1em; padding: 10px 20px;">
+                                        <span invisible="variation_percent &lt;= 0">+</span><field name="variation_percent" widget="float" digits="[10,1]"/> %
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section Renouvellements et Contrats -->
+                    <div class="row mb-4">
+                        <!-- Renouvellements -->
+                        <div class="col-md-6">
+                            <div class="p-4" style="background: white; border-radius: 15px; box-shadow: 0 2px 15px rgba(0,0,0,0.08); height: 100%;">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 style="margin: 0; color: #495057;">🔄 Renouvellements à venir</h5>
+                                    <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 1em; padding: 8px 15px;">
+                                        <field name="renewal_count"/>
+                                    </span>
+                                </div>
+                                <div style="max-height: 220px; overflow-y: auto;">
+                                    <pre style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 0.9em; line-height: 1.6; white-space: pre-wrap; background: transparent; border: none; padding: 0;"><field name="renewal_alerts" readonly="1"/></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contrats -->
+                        <div class="col-md-6">
+                            <div class="p-4" style="background: white; border-radius: 15px; box-shadow: 0 2px 15px rgba(0,0,0,0.08); height: 100%;">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 style="margin: 0; color: #495057;">📋 Contrats se terminant</h5>
+                                    <span class="badge" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); font-size: 1em; padding: 8px 15px;">
+                                        <field name="contract_ending_count"/>
+                                    </span>
+                                </div>
+                                <div style="max-height: 220px; overflow-y: auto;">
+                                    <pre style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 0.9em; line-height: 1.6; white-space: pre-wrap; background: transparent; border: none; padding: 0;"><field name="contract_endings" readonly="1"/></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Projection détaillée et catégories -->
+                    <div class="row">
+                        <!-- Timeline mois par mois -->
+                        <div class="col-md-8">
+                            <div class="p-4" style="background: white; border-radius: 15px; box-shadow: 0 2px 15px rgba(0,0,0,0.08);">
+                                <h5 style="color: #495057; margin-bottom: 15px;">📅 Projection mois par mois</h5>
+                                <div style="max-height: 350px; overflow-y: auto;">
+                                    <pre style="margin: 0; font-family: 'SF Mono', Monaco, 'Courier New', monospace; font-size: 0.95em; line-height: 2; white-space: pre-wrap; background: #f8f9fa; border: none; padding: 15px; border-radius: 10px;"><field name="forecast_data" readonly="1"/></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Répartition par catégorie -->
+                        <div class="col-md-4">
+                            <div class="p-4" style="background: linear-gradient(180deg, #fff5f5 0%, #ffe3e3 100%); border-radius: 15px; height: 100%;">
+                                <h5 style="color: #495057; margin-bottom: 15px;">📊 Par priorité</h5>
+                                <pre style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 1em; line-height: 1.8; white-space: pre-wrap; background: transparent; border: none; padding: 0; font-weight: 500;"><field name="forecast_by_category" readonly="1"/></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Action -->
+    <record id="action_forecast" model="ir.actions.act_window">
+        <field name="name">📈 Prévisions</field>
+        <field name="res_model">clearspend.forecast</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+    
+    <!-- Action serveur pour ouvrir -->
+    <record id="action_open_forecast" model="ir.actions.server">
+        <field name="name">📈 Prévisions des coûts</field>
+        <field name="model_id" ref="model_clearspend_forecast"/>
+        <field name="state">code</field>
+        <field name="code">action = model.open_forecast()</field>
+    </record>
+    
+</odoo>

@@ -1,0 +1,592 @@
+/* ClearSpend - Custom Styles UX */
+/* Palette: Bleu foncé #1e3d5c / Turquoise #3eb8a5 */
+
+/* ============================================ */
+/* VARIABLES COULEURS */
+/* ============================================ */
+:root {
+    --cs-primary: #1e3d5c;
+    --cs-primary-dark: #152a3d;
+    --cs-secondary: #3eb8a5;
+    --cs-secondary-light: #5fcfbc;
+    --cs-gradient: linear-gradient(135deg, #1e3d5c 0%, #3eb8a5 100%);
+    --cs-gradient-reverse: linear-gradient(135deg, #3eb8a5 0%, #1e3d5c 100%);
+}
+
+/* ============================================ */
+/* ANIMATIONS ET TRANSITIONS */
+/* ============================================ */
+
+.clearspend-card {
+    transition: all 0.3s ease;
+    border: none !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.clearspend-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(30, 61, 92, 0.15);
+}
+
+/* Boutons avec hover */
+.btn-clearspend {
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    background: var(--cs-gradient);
+    border: none;
+    color: white;
+}
+
+.btn-clearspend:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(62, 184, 165, 0.4);
+}
+
+/* ============================================ */
+/* DASHBOARD */
+/* ============================================ */
+
+.clearspend-header {
+    background: var(--cs-gradient);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.clearspend-kpi-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.clearspend-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(30, 61, 92, 0.15);
+}
+
+.clearspend-gradient-green {
+    background: linear-gradient(135deg, #3eb8a5 0%, #5fcfbc 100%);
+}
+
+.clearspend-gradient-purple {
+    background: var(--cs-gradient);
+}
+
+.clearspend-gradient-orange {
+    background: linear-gradient(135deg, #f5a623 0%, #f7c948 100%);
+}
+
+.clearspend-gradient-blue {
+    background: linear-gradient(135deg, #1e3d5c 0%, #2d5a87 100%);
+}
+
+/* ============================================ */
+/* KANBAN */
+/* ============================================ */
+
+.o_kanban_record {
+    transition: all 0.2s ease;
+    border-radius: 8px !important;
+    margin-bottom: 8px;
+}
+
+.o_kanban_record:hover {
+    transform: translateX(3px);
+    box-shadow: 0 4px 15px rgba(30, 61, 92, 0.12);
+}
+
+/* Colonnes Kanban */
+.o_kanban_group {
+    background-color: #f8f9fa !important;
+    border-radius: 10px;
+    margin: 0 6px;
+}
+
+/* Header colonnes */
+.o_kanban_header {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* ============================================ */
+/* FORMULAIRES */
+/* ============================================ */
+
+.o_form_sheet {
+    padding: 24px !important;
+}
+
+/* Groupes de champs */
+.o_group .o_inner_group {
+    background: #fafbfc;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+/* Titres de sections */
+.o_horizontal_separator {
+    font-weight: 600;
+    color: var(--cs-primary);
+    font-size: 1rem;
+    margin: 1rem 0 0.5rem 0;
+}
+
+/* Champs de saisie */
+.o_input {
+    border-radius: 6px !important;
+    transition: all 0.2s ease;
+}
+
+.o_input:focus {
+    box-shadow: 0 0 0 3px rgba(62, 184, 165, 0.25) !important;
+    border-color: var(--cs-secondary) !important;
+}
+
+/* Placeholder plus visible */
+.o_input::placeholder {
+    color: #adb5bd;
+    font-style: italic;
+}
+
+/* ============================================ */
+/* BOUTONS D'ACTION */
+/* ============================================ */
+
+.o_statusbar_buttons .btn {
+    border-radius: 6px !important;
+    font-weight: 500;
+    padding: 8px 16px;
+    margin-right: 8px;
+}
+
+.o_statusbar_buttons .btn-primary {
+    background: var(--cs-gradient);
+    border: none;
+}
+
+.o_statusbar_buttons .btn-primary:hover {
+    background: linear-gradient(135deg, #152a3d 0%, #2d9a8a 100%);
+}
+
+.o_statusbar_buttons .btn-success {
+    background: linear-gradient(135deg, #3eb8a5 0%, #5fcfbc 100%);
+    border: none;
+}
+
+.o_statusbar_buttons .btn-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #e85d6a 100%);
+    border: none;
+}
+
+/* ============================================ */
+/* BADGES ET ÉTATS */
+/* ============================================ */
+
+.badge {
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+/* Priorités - couleurs harmonisées */
+.o_priority_essential {
+    background-color: #dc3545 !important;
+}
+
+.o_priority_important {
+    background-color: #f5a623 !important;
+}
+
+.o_priority_optional {
+    background-color: #3eb8a5 !important;
+}
+
+.o_priority_to_review {
+    background-color: #6c757d !important;
+}
+
+/* ============================================ */
+/* ALERTES ET NOTIFICATIONS */
+/* ============================================ */
+
+.alert {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.alert-info {
+    background: linear-gradient(135deg, rgba(62, 184, 165, 0.1) 0%, rgba(95, 207, 188, 0.1) 100%);
+    border-left: 4px solid var(--cs-secondary);
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, rgba(245, 166, 35, 0.1) 0%, rgba(247, 201, 72, 0.1) 100%);
+    border-left: 4px solid #f5a623;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(232, 93, 106, 0.1) 100%);
+    border-left: 4px solid #dc3545;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, rgba(62, 184, 165, 0.1) 0%, rgba(95, 207, 188, 0.1) 100%);
+    border-left: 4px solid var(--cs-secondary);
+}
+
+/* ============================================ */
+/* STAT BUTTONS */
+/* ============================================ */
+
+.oe_stat_button {
+    border-radius: 8px !important;
+    transition: all 0.2s ease;
+}
+
+.oe_stat_button:hover {
+    background-color: rgba(62, 184, 165, 0.08);
+    transform: scale(1.02);
+}
+
+/* ============================================ */
+/* PROGRESS BARS */
+/* ============================================ */
+
+.progress {
+    height: 12px;
+    border-radius: 20px;
+    background-color: #e9ecef;
+    overflow: hidden;
+}
+
+.progress-bar {
+    border-radius: 20px;
+    transition: width 0.6s ease;
+    background: var(--cs-gradient);
+}
+
+/* ============================================ */
+/* LISTES */
+/* ============================================ */
+
+.o_list_view .o_data_row {
+    transition: all 0.15s ease;
+}
+
+.o_list_view .o_data_row:hover {
+    background-color: rgba(62, 184, 165, 0.05) !important;
+}
+
+/* Lignes alternées subtiles */
+.o_list_view .o_data_row:nth-child(even) {
+    background-color: #fafbfc;
+}
+
+/* ============================================ */
+/* RIBBONS */
+/* ============================================ */
+
+.o_web_ribbon {
+    font-weight: 500;
+    padding: 4px 24px;
+}
+
+/* ============================================ */
+/* NOTEBOOK / TABS */
+/* ============================================ */
+
+.o_notebook .nav-tabs {
+    border-bottom: 2px solid #e9ecef;
+}
+
+.o_notebook .nav-link {
+    border: none !important;
+    border-bottom: 3px solid transparent !important;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 12px 20px;
+    transition: all 0.2s ease;
+}
+
+.o_notebook .nav-link:hover {
+    color: var(--cs-secondary);
+    border-bottom-color: rgba(62, 184, 165, 0.3) !important;
+}
+
+.o_notebook .nav-link.active {
+    color: var(--cs-primary) !important;
+    border-bottom-color: var(--cs-secondary) !important;
+    background: transparent !important;
+}
+
+/* ============================================ */
+/* TOOLTIPS */
+/* ============================================ */
+
+[title] {
+    cursor: help;
+}
+
+/* ============================================ */
+/* RESPONSIVENESS */
+/* ============================================ */
+
+@media (max-width: 768px) {
+    .clearspend-kpi-card {
+        margin-bottom: 1rem;
+    }
+    
+    .clearspend-header h1 {
+        font-size: 1.5rem;
+    }
+}
+
+/* ============================================ */
+/* CHARTS - PAGE GRAPHIQUES */
+/* ============================================ */
+
+/* Wrapper - prend toute la place et scroll */
+.clearspend-charts-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.clearspend-charts-container {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8f4f2 100%);
+    min-height: 100%;
+}
+
+.clearspend-charts-header {
+    background: var(--cs-gradient);
+    color: white;
+    padding: 30px 40px;
+    margin-bottom: 30px;
+}
+
+.clearspend-charts-header h1 {
+    color: white;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.clearspend-charts-header p {
+    opacity: 0.9;
+}
+
+.clearspend-charts-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+}
+
+.clearspend-charts-content {
+    padding: 0 40px 100px 40px;
+}
+
+.clearspend-chart-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(30, 61, 92, 0.08);
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.clearspend-chart-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(30, 61, 92, 0.12);
+}
+
+.clearspend-chart-card h5 {
+    color: var(--cs-primary);
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.clearspend-chart-card .chart-container {
+    position: relative;
+}
+
+/* KPI Cards dans les graphiques */
+.clearspend-charts-content .clearspend-kpi-card {
+    text-align: center;
+    border-left: 4px solid var(--cs-secondary);
+    border-radius: 12px;
+}
+
+.clearspend-charts-content .clearspend-kpi-card .kpi-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--cs-primary);
+    line-height: 1.2;
+}
+
+.clearspend-charts-content .clearspend-kpi-card .kpi-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Responsive Charts */
+@media (max-width: 992px) {
+    .clearspend-charts-content {
+        padding: 0 20px 20px 20px;
+    }
+    
+    .clearspend-charts-header {
+        padding: 20px;
+    }
+    
+    .clearspend-chart-card {
+        margin-bottom: 20px;
+    }
+}
+
+/* ============================================ */
+/* CUSTOM SCROLLBAR */
+/* ============================================ */
+
+.clearspend-charts-wrapper::-webkit-scrollbar {
+    width: 8px;
+}
+
+.clearspend-charts-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.clearspend-charts-wrapper::-webkit-scrollbar-thumb {
+    background: var(--cs-secondary);
+    border-radius: 4px;
+}
+
+.clearspend-charts-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--cs-primary);
+}
+
+/* ============================================ */
+/* DASHBOARD SPECIFIC OVERRIDES */
+/* ============================================ */
+
+/* Score FinOps circle */
+.finops-score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(var(--cs-secondary) calc(var(--score) * 1%), #e9ecef 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.finops-score-circle::before {
+    content: '';
+    width: 90px;
+    height: 90px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.finops-score-value {
+    position: relative;
+    z-index: 1;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--cs-primary);
+}
+
+/* ============================================ */
+/* API & OCR PAGES */
+/* ============================================ */
+
+.api-connection-card {
+    border-left: 4px solid var(--cs-secondary);
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.api-connection-card:hover {
+    box-shadow: 0 4px 15px rgba(30, 61, 92, 0.1);
+}
+
+.api-connection-card.connected {
+    border-left-color: #28a745;
+}
+
+.api-connection-card.error {
+    border-left-color: #dc3545;
+}
+
+.ocr-confidence-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: #e9ecef;
+    overflow: hidden;
+}
+
+.ocr-confidence-bar .fill {
+    height: 100%;
+    background: var(--cs-gradient);
+    transition: width 0.5s ease;
+}
+
+/* ============================================ */
+/* ONBOARDING WIZARD */
+/* ============================================ */
+
+.onboarding-step {
+    padding: 30px;
+    text-align: center;
+}
+
+.onboarding-step .step-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.onboarding-step h3 {
+    color: var(--cs-primary);
+    margin-bottom: 15px;
+}
+
+.onboarding-progress {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.onboarding-progress .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.onboarding-progress .dot.active {
+    background: var(--cs-secondary);
+    transform: scale(1.2);
+}
+
+.onboarding-progress .dot.completed {
+    background: var(--cs-primary);
+}

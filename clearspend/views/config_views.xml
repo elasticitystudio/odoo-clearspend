@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_config_form" model="ir.ui.view">
+        <field name="name">clearspend.config.form</field>
+        <field name="model">clearspend.config</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <!-- Bandeau Mode -->
+                    <div class="alert alert-success text-center" role="alert" invisible="mode != 'simple'">
+                        <strong>🟢 Mode Simple</strong> - Interface épurée pour PME
+                        <button name="action_switch_to_advanced" type="object" 
+                                string="Passer en mode Avancé →" class="btn btn-sm btn-outline-primary ms-3"/>
+                    </div>
+                    <div class="alert alert-primary text-center" role="alert" invisible="mode != 'advanced'">
+                        <strong>🔵 Mode Avancé</strong> - Toutes les fonctionnalités activées
+                        <button name="action_switch_to_simple" type="object" 
+                                string="← Revenir au mode Simple" class="btn btn-sm btn-outline-secondary ms-3"/>
+                    </div>
+                    
+                    <!-- Bouton de resync si problème -->
+                    <div class="alert alert-warning text-center" role="alert">
+                        <small>Si le menu ne correspond pas au mode, cliquez ici :</small>
+                        <button name="action_sync_mode_group" type="object" 
+                                string="🔄 Resynchroniser le menu" class="btn btn-sm btn-warning ms-2"/>
+                    </div>
+                    
+                    <group>
+                        <group string="🏢 Entreprise">
+                            <field name="company_display_name" placeholder="Nom de votre entreprise"/>
+                            <field name="employee_count"/>
+                            <field name="company_id" groups="base.group_multi_company" invisible="1"/>
+                        </group>
+                        <group string="⚙️ Mode">
+                            <field name="mode" widget="radio"/>
+                        </group>
+                    </group>
+                    
+                    <group string="💰 Budget SaaS">
+                        <group>
+                            <field name="budget_monthly"/>
+                            <field name="budget_yearly" readonly="1"/>
+                        </group>
+                        <group>
+                            <label for="budget_alert_threshold"/>
+                            <div class="d-flex align-items-center">
+                                <field name="budget_alert_threshold" class="oe_inline" style="width: 80px;"/>
+                                <span class="ms-2">%</span>
+                            </div>
+                        </group>
+                    </group>
+                    
+                    <!-- Options avancées (mode avancé uniquement) -->
+                    <group string="🔧 Fonctionnalités" invisible="mode == 'simple'">
+                        <group>
+                            <field name="enable_workflow"/>
+                            <field name="enable_contracts"/>
+                            <field name="enable_forecasts"/>
+                        </group>
+                        <group>
+                            <field name="enable_ocr"/>
+                            <field name="enable_api"/>
+                            <field name="enable_advanced_charts"/>
+                        </group>
+                    </group>
+                    
+                    <!-- Seuil CFO (si workflow activé) -->
+                    <group string="✅ Workflow d'approbation" invisible="not enable_workflow">
+                        <field name="cfo_approval_threshold"/>
+                        <div class="alert alert-info" role="alert">
+                            <small>Les abonnements dont le coût annuel dépasse ce seuil nécessitent l'approbation du CFO.</small>
+                        </div>
+                    </group>
+                    
+                    <group string="💶 Devise">
+                        <field name="default_currency_id"/>
+                    </group>
+                    
+                    <group string="📧 Notifications Email">
+                        <field name="send_alert_emails"/>
+                        <field name="send_monthly_report"/>
+                        <field name="email_recipients" placeholder="email1@example.com, email2@example.com"/>
+                    </group>
+                    
+                    <separator string="👥 Groupes de sécurité" invisible="mode == 'simple'"/>
+                    <div class="alert alert-info" invisible="mode == 'simple'">
+                        <p><strong>Niveaux d'accès ClearSpend :</strong></p>
+                        <ul>
+                            <li><strong>Utilisateur</strong> : Voit et crée abonnements de son département</li>
+                            <li><strong>Manager</strong> : Gère son département, approuve les demandes</li>
+                            <li><strong>CFO</strong> : Accès complet, approbation finale</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <button name="action_download_monthly_report" type="object" 
+                                string="📄 Rapport PDF" class="btn-primary me-2"/>
+                        <button name="action_send_monthly_report" type="object" 
+                                string="📧 Envoyer par email" class="btn-secondary me-2"/>
+                        <button name="action_manage_users" type="object" 
+                                string="👥 Utilisateurs" class="btn-info"
+                                invisible="mode == 'simple'"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <record id="action_config" model="ir.actions.server">
+        <field name="name">Paramètres ClearSpend</field>
+        <field name="model_id" ref="model_clearspend_config"/>
+        <field name="state">code</field>
+        <field name="code">
+config = model.get_config()
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Paramètres ClearSpend',
+    'res_model': 'clearspend.config',
+    'view_mode': 'form',
+    'res_id': config.id,
+    'target': 'new',
+}
+        </field>
+    </record>
+    
+    <record id="action_generate_monthly_report" model="ir.actions.server">
+        <field name="name">📄 Rapport mensuel PDF</field>
+        <field name="model_id" ref="model_clearspend_config"/>
+        <field name="state">code</field>
+        <field name="code">
+config = model.get_config()
+action = config.action_download_monthly_report()
+        </field>
+    </record>
+    
+</odoo>

@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Vue Tree Contrats -->
+    <record id="view_contract_tree" model="ir.ui.view">
+        <field name="name">clearspend.contract.tree</field>
+        <field name="model">clearspend.contract</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="state == 'expired'" 
+                  decoration-warning="state == 'expiring'"
+                  decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="subscription_id"/>
+                <field name="provider_id"/>
+                <field name="contract_type"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="days_until_end"/>
+                <field name="contract_value" sum="Valeur totale"/>
+                <field name="auto_renewal"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-warning="state == 'expiring'"
+                       decoration-danger="state == 'expired'"
+                       decoration-info="state == 'draft'"
+                       decoration-muted="state in ('cancelled', 'renewed')"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Vue Kanban Contrats -->
+    <record id="view_contract_kanban" model="ir.ui.view">
+        <field name="name">clearspend.contract.kanban</field>
+        <field name="model">clearspend.contract</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="subscription_id"/>
+                <field name="provider_id"/>
+                <field name="end_date"/>
+                <field name="days_until_end"/>
+                <field name="contract_value"/>
+                <field name="state"/>
+                <field name="contract_file"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong>
+                                            <t t-if="record.contract_file.raw_value">📎 </t>
+                                            <field name="name"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <div t-if="record.provider_id.value">
+                                        <small class="text-muted"><field name="provider_id"/></small>
+                                    </div>
+                                    <div t-if="record.end_date.value" class="mt-2">
+                                        <span t-attf-class="badge #{record.days_until_end.raw_value &lt; 0 ? 'bg-danger' : record.days_until_end.raw_value &lt; 30 ? 'bg-warning' : 'bg-success'}">
+                                            <t t-if="record.days_until_end.raw_value &lt; 0">Expiré</t>
+                                            <t t-elif="record.days_until_end.raw_value == 0">Expire aujourd'hui</t>
+                                            <t t-else=""><field name="days_until_end"/> jours</t>
+                                        </span>
+                                    </div>
+                                    <div t-if="record.contract_value.raw_value" class="mt-2">
+                                        <strong><field name="contract_value"/> €</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    
+    <!-- Vue Form Contrats -->
+    <record id="view_contract_form" model="ir.ui.view">
+        <field name="name">clearspend.contract.form</field>
+        <field name="model">clearspend.contract</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_activate" type="object" string="✅ Activer" 
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_renew" type="object" string="🔄 Renouveler" 
+                            class="btn-success" invisible="state not in ('active', 'expiring', 'expired')"/>
+                    <button name="action_cancel" type="object" string="❌ Résilier" 
+                            class="btn-danger" invisible="state in ('cancelled', 'renewed')"
+                            confirm="Êtes-vous sûr de vouloir résilier ce contrat ?"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,active,expiring,expired"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(clearspend.action_subscription)d" type="action"
+                                class="oe_stat_button" icon="fa-list"
+                                invisible="not subscription_id">
+                            <field name="subscription_id" widget="statinfo" string="Abonnement"/>
+                        </button>
+                    </div>
+                    
+                    <widget name="web_ribbon" title="Expire bientôt!" bg_color="bg-warning" 
+                            invisible="state != 'expiring'"/>
+                    <widget name="web_ribbon" title="Expiré" bg_color="bg-danger" 
+                            invisible="state != 'expired'"/>
+                    
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nom du contrat"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="📋 Informations générales">
+                            <field name="subscription_id"/>
+                            <field name="provider_id"/>
+                            <field name="contract_type"/>
+                        </group>
+                        <group string="📎 Document">
+                            <field name="contract_file" filename="contract_filename"/>
+                            <field name="contract_filename" invisible="1"/>
+                            <field name="file_size" invisible="not contract_file"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group string="📅 Dates">
+                            <field name="signature_date"/>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                            <field name="days_until_end" invisible="not end_date"/>
+                        </group>
+                        <group string="🔄 Renouvellement">
+                            <field name="auto_renewal"/>
+                            <field name="notice_period"/>
+                            <field name="notice_date"/>
+                            <field name="days_until_notice" invisible="not notice_date"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group string="💰 Conditions financières">
+                            <field name="contract_value"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                            <field name="payment_terms"/>
+                        </group>
+                        <group string="👥 Licences">
+                            <field name="min_users"/>
+                            <field name="max_users"/>
+                            <field name="price_lock"/>
+                            <field name="price_increase_cap" invisible="price_lock"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="📝 Notes et conditions" name="notes">
+                            <separator string="Conditions clés"/>
+                            <field name="key_terms" placeholder="Résumé des conditions clés du contrat..."/>
+                            <separator string="Notes additionnelles"/>
+                            <field name="notes" placeholder="Notes additionnelles..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Vue Search Contrats -->
+    <record id="view_contract_search" model="ir.ui.view">
+        <field name="name">clearspend.contract.search</field>
+        <field name="model">clearspend.contract</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="subscription_id"/>
+                <field name="provider_id"/>
+                <filter name="filter_active" string="Actifs" domain="[('state', '=', 'active')]"/>
+                <filter name="filter_expiring" string="⚠️ Expirent bientôt" domain="[('state', '=', 'expiring')]"/>
+                <filter name="filter_expired" string="Expirés" domain="[('state', '=', 'expired')]"/>
+                <filter name="filter_auto_renewal" string="Renouvellement auto" domain="[('auto_renewal', '=', True)]"/>
+                <separator/>
+                <filter name="filter_with_file" string="📎 Avec fichier" domain="[('contract_file', '!=', False)]"/>
+                <filter name="filter_no_file" string="Sans fichier" domain="[('contract_file', '=', False)]"/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
+                    <filter name="group_provider" string="Fournisseur" context="{'group_by': 'provider_id'}"/>
+                    <filter name="group_type" string="Type" context="{'group_by': 'contract_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <!-- Action Contrats -->
+    <record id="action_contract" model="ir.actions.act_window">
+        <field name="name">📄 Contrats</field>
+        <field name="res_model">clearspend.contract</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun contrat enregistré
+            </p>
+            <p>
+                Ajoutez vos contrats SaaS pour suivre les dates de renouvellement et les conditions.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Action contrats qui expirent -->
+    <record id="action_contract_expiring" model="ir.actions.act_window">
+        <field name="name">⚠️ Contrats expirant bientôt</field>
+        <field name="res_model">clearspend.contract</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('state', 'in', ['expiring', 'active']), ('end_date', '!=', False)]</field>
+        <field name="context">{'search_default_filter_expiring': 1}</field>
+    </record>
+    
+</odoo>

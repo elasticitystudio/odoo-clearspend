@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_reject_subscription_wizard_form" model="ir.ui.view">
+        <field name="name">clearspend.reject.subscription.wizard.form</field>
+        <field name="model">clearspend.reject.subscription.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="subscription_id" readonly="1"/>
+                </group>
+                <group>
+                    <field name="rejection_reason" placeholder="Indiquez le motif du rejet...&#10;&#10;Ex: Budget insuffisant, doublon avec un autre outil, non conforme à la politique IT..." 
+                           widget="text"/>
+                </group>
+                <footer>
+                    <button name="action_reject" type="object" string="❌ Rejeter la demande" class="btn-danger"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <record id="action_reject_wizard" model="ir.actions.act_window">
+        <field name="name">Rejeter la demande</field>
+        <field name="res_model">clearspend.reject.subscription.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_subscription_id': active_id}</field>
+    </record>
+    
+</odoo>

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="728" height="160" viewBox="0 0 728 160">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2dbcb1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e3a5f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="arrowGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1e3a5f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2dbcb1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="728" height="160" fill="url(#bgGrad)"/>
+  
+  <!-- Decorative shapes -->
+  <circle cx="680" cy="30" r="80" fill="white" opacity="0.05"/>
+  <circle cx="650" cy="140" r="60" fill="white" opacity="0.03"/>
+  <circle cx="50" cy="130" r="40" fill="white" opacity="0.05"/>
+  
+  <!-- Arrow/Logo shape -->
+  <g transform="translate(40, 25) scale(0.8)">
+    <path d="M 0 110 L 0 60 L 50 60 L 90 20 L 100 30 L 65 65 L 65 110 Z" 
+          fill="white" opacity="0.95"/>
+    <path d="M 80 5 L 115 5 L 115 40 L 100 25 L 85 40 L 85 20 Z" 
+          fill="white" opacity="0.95"/>
+  </g>
+  
+  <!-- Text: ClearSpend -->
+  <text x="180" y="75" font-family="Arial, sans-serif" font-size="42" font-weight="bold">
+    <tspan fill="#1e3a5f">Clear</tspan><tspan fill="#2dbcb1">spend</tspan>
+  </text>
+  
+  <!-- Tagline -->
+  <text x="180" y="105" font-family="Arial, sans-serif" font-size="18" fill="white" opacity="0.9">
+    Anticipate, Control &amp; Optimize
+  </text>
+  
+  <!-- Features badges -->
+  <g transform="translate(180, 120)">
+    <rect x="0" y="0" width="90" height="24" rx="12" fill="white" opacity="0.2"/>
+    <text x="45" y="16" font-family="Arial, sans-serif" font-size="11" fill="white" text-anchor="middle">FinOps SaaS</text>
+    
+    <rect x="100" y="0" width="100" height="24" rx="12" fill="white" opacity="0.2"/>
+    <text x="150" y="16" font-family="Arial, sans-serif" font-size="11" fill="white" text-anchor="middle">Abonnements</text>
+    
+    <rect x="210" y="0" width="80" height="24" rx="12" fill="white" opacity="0.2"/>
+    <text x="250" y="16" font-family="Arial, sans-serif" font-size="11" fill="white" text-anchor="middle">Analytics</text>
+    
+    <rect x="300" y="0" width="70" height="24" rx="12" fill="white" opacity="0.2"/>
+    <text x="335" y="16" font-family="Arial, sans-serif" font-size="11" fill="white" text-anchor="middle">Alertes</text>
+  </g>
+  
+  <!-- Odoo 17 badge -->
+  <g transform="translate(620, 55)">
+    <rect x="0" y="0" width="80" height="50" rx="8" fill="white" opacity="0.95"/>
+    <text x="40" y="25" font-family="Arial, sans-serif" font-size="12" fill="#1e3a5f" text-anchor="middle" font-weight="bold">Odoo 17</text>
+    <text x="40" y="40" font-family="Arial, sans-serif" font-size="10" fill="#2dbcb1" text-anchor="middle">Compatible</text>
+  </g>
+</svg>

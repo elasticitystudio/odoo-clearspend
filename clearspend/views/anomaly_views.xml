@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Vue Tree Anomalies -->
+    <record id="view_anomaly_tree" model="ir.ui.view">
+        <field name="name">clearspend.anomaly.tree</field>
+        <field name="model">clearspend.anomaly</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="severity == 'critical'" 
+                  decoration-warning="severity == 'high'"
+                  decoration-info="severity == 'medium'"
+                  decoration-muted="resolved == True">
+                <field name="resolved" column_invisible="1"/>
+                <field name="severity" widget="badge"/>
+                <field name="name"/>
+                <field name="anomaly_type"/>
+                <field name="subscription_id"/>
+                <field name="financial_impact" sum="Impact total"/>
+                <field name="detected_on"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'new'"
+                       decoration-warning="state == 'investigating'"
+                       decoration-success="state == 'resolved'"
+                       decoration-muted="state == 'ignored'"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Vue Kanban Anomalies -->
+    <record id="view_anomaly_kanban" model="ir.ui.view">
+        <field name="name">clearspend.anomaly.kanban</field>
+        <field name="model">clearspend.anomaly</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="anomaly_type" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="anomaly_type"/>
+                <field name="severity"/>
+                <field name="state"/>
+                <field name="financial_impact"/>
+                <field name="subscription_id"/>
+                <field name="resolved"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click #{record.resolved.raw_value ? 'o_kanban_record_muted' : ''}">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong>
+                                            <t t-if="record.severity.raw_value == 'critical'">🔴 </t>
+                                            <t t-if="record.severity.raw_value == 'high'">🟠 </t>
+                                            <t t-if="record.severity.raw_value == 'medium'">🟡 </t>
+                                            <t t-if="record.severity.raw_value == 'low'">🟢 </t>
+                                            <field name="name"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <div t-if="record.subscription_id.value">
+                                        <small class="text-muted">
+                                            <field name="subscription_id"/>
+                                        </small>
+                                    </div>
+                                    <div t-if="record.financial_impact.raw_value" class="mt-2">
+                                        <strong class="text-danger">
+                                            <field name="financial_impact"/> €/an
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_bottom mt-2">
+                                    <span t-attf-class="badge #{record.state.raw_value == 'new' ? 'bg-info' : record.state.raw_value == 'investigating' ? 'bg-warning' : record.state.raw_value == 'resolved' ? 'bg-success' : 'bg-secondary'}">
+                                        <field name="state"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    
+    <!-- Vue Form Anomalies -->
+    <record id="view_anomaly_form" model="ir.ui.view">
+        <field name="name">clearspend.anomaly.form</field>
+        <field name="model">clearspend.anomaly</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_investigate" type="object" string="🔍 Investiguer" 
+                            class="btn-primary" invisible="state != 'new'"/>
+                    <button name="action_resolve" type="object" string="✅ Résolu" 
+                            class="btn-success" invisible="state in ('resolved', 'ignored')"/>
+                    <button name="action_ignore" type="object" string="🚫 Ignorer" 
+                            class="btn-secondary" invisible="state in ('resolved', 'ignored')"/>
+                    <button name="action_open_subscription" type="object" string="📋 Voir abonnement" 
+                            class="btn-secondary" invisible="not subscription_id"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="severity" widget="badge" class="me-2"/>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="Détails">
+                            <field name="anomaly_type"/>
+                            <field name="detected_on"/>
+                            <field name="financial_impact"/>
+                        </group>
+                        <group string="Abonnement">
+                            <field name="subscription_id"/>
+                            <field name="subscription_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    
+                    <separator string="Description"/>
+                    <field name="description" placeholder="Description de l'anomalie..."/>
+                    
+                    <separator string="Résolution" invisible="not resolved"/>
+                    <group invisible="not resolved">
+                        <group>
+                            <field name="resolved"/>
+                            <field name="resolved_on"/>
+                            <field name="resolved_by"/>
+                        </group>
+                    </group>
+                    <field name="resolution_note" invisible="not resolved" placeholder="Notes de résolution..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Vue Search Anomalies -->
+    <record id="view_anomaly_search" model="ir.ui.view">
+        <field name="name">clearspend.anomaly.search</field>
+        <field name="model">clearspend.anomaly</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="subscription_id"/>
+                <filter name="filter_new" string="Nouveaux" domain="[('state', '=', 'new')]"/>
+                <filter name="filter_active" string="Non résolus" domain="[('resolved', '=', False)]"/>
+                <filter name="filter_critical" string="🔴 Critiques" domain="[('severity', '=', 'critical')]"/>
+                <filter name="filter_high" string="🟠 Hautes" domain="[('severity', '=', 'high')]"/>
+                <separator/>
+                <filter name="filter_duplicate" string="Doublons" domain="[('anomaly_type', '=', 'duplicate')]"/>
+                <filter name="filter_budget" string="Budget" domain="[('anomaly_type', '=', 'budget_overrun')]"/>
+                <filter name="filter_price" string="Hausses prix" domain="[('anomaly_type', '=', 'price_increase')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_type" string="Type" context="{'group_by': 'anomaly_type'}"/>
+                    <filter name="group_severity" string="Sévérité" context="{'group_by': 'severity'}"/>
+                    <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <!-- Actions -->
+    <record id="action_anomaly" model="ir.actions.act_window">
+        <field name="name">🔍 Anomalies</field>
+        <field name="res_model">clearspend.anomaly</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune anomalie détectée
+            </p>
+            <p>
+                Lancez la détection depuis Configuration → Détecter les anomalies
+            </p>
+        </field>
+    </record>
+    
+    <record id="action_detect_anomalies" model="ir.actions.server">
+        <field name="name">🔍 Détecter les anomalies</field>
+        <field name="model_id" ref="model_clearspend_anomaly"/>
+        <field name="state">code</field>
+        <field name="code">action = model.detect_all_anomalies()</field>
+    </record>
+    
+</odoo>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Productivité -->
+        <record id="provider_notion" model="clearspend.saas.provider">
+            <field name="name">Notion</field>
+            <field name="website">https://www.notion.so</field>
+            <field name="category">productivity</field>
+        </record>
+        <record id="provider_trello" model="clearspend.saas.provider">
+            <field name="name">Trello</field>
+            <field name="website">https://trello.com</field>
+            <field name="category">productivity</field>
+        </record>
+        <record id="provider_asana" model="clearspend.saas.provider">
+            <field name="name">Asana</field>
+            <field name="website">https://asana.com</field>
+            <field name="category">productivity</field>
+        </record>
+        <record id="provider_monday" model="clearspend.saas.provider">
+            <field name="name">Monday.com</field>
+            <field name="website">https://monday.com</field>
+            <field name="category">productivity</field>
+        </record>
+        <record id="provider_airtable" model="clearspend.saas.provider">
+            <field name="name">Airtable</field>
+            <field name="website">https://airtable.com</field>
+            <field name="category">productivity</field>
+        </record>
+        
+        <!-- Communication -->
+        <record id="provider_slack" model="clearspend.saas.provider">
+            <field name="name">Slack</field>
+            <field name="website">https://slack.com</field>
+            <field name="category">communication</field>
+        </record>
+        <record id="provider_zoom" model="clearspend.saas.provider">
+            <field name="name">Zoom</field>
+            <field name="website">https://zoom.us</field>
+            <field name="category">communication</field>
+        </record>
+        <record id="provider_teams" model="clearspend.saas.provider">
+            <field name="name">Microsoft Teams</field>
+            <field name="website">https://www.microsoft.com/teams</field>
+            <field name="category">communication</field>
+        </record>
+        <record id="provider_discord" model="clearspend.saas.provider">
+            <field name="name">Discord</field>
+            <field name="website">https://discord.com</field>
+            <field name="category">communication</field>
+        </record>
+        
+        <!-- Marketing -->
+        <record id="provider_mailchimp" model="clearspend.saas.provider">
+            <field name="name">Mailchimp</field>
+            <field name="website">https://mailchimp.com</field>
+            <field name="category">marketing</field>
+        </record>
+        <record id="provider_hubspot" model="clearspend.saas.provider">
+            <field name="name">HubSpot</field>
+            <field name="website">https://www.hubspot.com</field>
+            <field name="category">marketing</field>
+        </record>
+        <record id="provider_sendinblue" model="clearspend.saas.provider">
+            <field name="name">Brevo (Sendinblue)</field>
+            <field name="website">https://www.brevo.com</field>
+            <field name="category">marketing</field>
+        </record>
+        <record id="provider_semrush" model="clearspend.saas.provider">
+            <field name="name">SEMrush</field>
+            <field name="website">https://www.semrush.com</field>
+            <field name="category">marketing</field>
+        </record>
+        
+        <!-- Finance -->
+        <record id="provider_stripe" model="clearspend.saas.provider">
+            <field name="name">Stripe</field>
+            <field name="website">https://stripe.com</field>
+            <field name="category">finance</field>
+        </record>
+        <record id="provider_qonto" model="clearspend.saas.provider">
+            <field name="name">Qonto</field>
+            <field name="website">https://qonto.com</field>
+            <field name="category">finance</field>
+        </record>
+        <record id="provider_pennylane" model="clearspend.saas.provider">
+            <field name="name">Pennylane</field>
+            <field name="website">https://www.pennylane.com</field>
+            <field name="category">finance</field>
+        </record>
+        
+        <!-- Développement -->
+        <record id="provider_github" model="clearspend.saas.provider">
+            <field name="name">GitHub</field>
+            <field name="website">https://github.com</field>
+            <field name="category">dev</field>
+        </record>
+        <record id="provider_gitlab" model="clearspend.saas.provider">
+            <field name="name">GitLab</field>
+            <field name="website">https://gitlab.com</field>
+            <field name="category">dev</field>
+        </record>
+        <record id="provider_vercel" model="clearspend.saas.provider">
+            <field name="name">Vercel</field>
+            <field name="website">https://vercel.com</field>
+            <field name="category">dev</field>
+        </record>
+        <record id="provider_heroku" model="clearspend.saas.provider">
+            <field name="name">Heroku</field>
+            <field name="website">https://www.heroku.com</field>
+            <field name="category">dev</field>
+        </record>
+        <record id="provider_digitalocean" model="clearspend.saas.provider">
+            <field name="name">DigitalOcean</field>
+            <field name="website">https://www.digitalocean.com</field>
+            <field name="category">dev</field>
+        </record>
+        
+        <!-- Design -->
+        <record id="provider_figma" model="clearspend.saas.provider">
+            <field name="name">Figma</field>
+            <field name="website">https://www.figma.com</field>
+            <field name="category">design</field>
+        </record>
+        <record id="provider_canva" model="clearspend.saas.provider">
+            <field name="name">Canva</field>
+            <field name="website">https://www.canva.com</field>
+            <field name="category">design</field>
+        </record>
+        <record id="provider_adobe" model="clearspend.saas.provider">
+            <field name="name">Adobe Creative Cloud</field>
+            <field name="website">https://www.adobe.com</field>
+            <field name="category">design</field>
+        </record>
+        
+        <!-- Stockage -->
+        <record id="provider_dropbox" model="clearspend.saas.provider">
+            <field name="name">Dropbox</field>
+            <field name="website">https://www.dropbox.com</field>
+            <field name="category">storage</field>
+        </record>
+        <record id="provider_google_workspace" model="clearspend.saas.provider">
+            <field name="name">Google Workspace</field>
+            <field name="website">https://workspace.google.com</field>
+            <field name="category">storage</field>
+        </record>
+        <record id="provider_microsoft365" model="clearspend.saas.provider">
+            <field name="name">Microsoft 365</field>
+            <field name="website">https://www.microsoft.com/microsoft-365</field>
+            <field name="category">storage</field>
+        </record>
+        
+        <!-- Sécurité -->
+        <record id="provider_1password" model="clearspend.saas.provider">
+            <field name="name">1Password</field>
+            <field name="website">https://1password.com</field>
+            <field name="category">security</field>
+        </record>
+        <record id="provider_lastpass" model="clearspend.saas.provider">
+            <field name="name">LastPass</field>
+            <field name="website">https://www.lastpass.com</field>
+            <field name="category">security</field>
+        </record>
+        
+    </data>
+</odoo>

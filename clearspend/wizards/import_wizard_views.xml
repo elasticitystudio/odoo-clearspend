@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_import_wizard_form" model="ir.ui.view">
+        <field name="name">clearspend.import.wizard.form</field>
+        <field name="model">clearspend.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Excel/CSV">
+                <field name="state" invisible="1"/>
+                
+                <!-- Header avec étapes -->
+                <div class="text-center mb-4 p-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; margin: -16px -16px 20px -16px;">
+                    <h2 style="color: white; margin: 0;">📥 Import Intelligent</h2>
+                    <div class="d-flex justify-content-center gap-4 mt-3">
+                        <span class="badge" style="background: rgba(255,255,255,0.9); color: #667eea; padding: 8px 15px;" invisible="state != 'upload'">1. Upload</span>
+                        <span class="badge" style="background: rgba(255,255,255,0.3); color: white; padding: 8px 15px;" invisible="state == 'upload'">1. Upload ✓</span>
+                        
+                        <span class="badge" style="background: rgba(255,255,255,0.3); color: white; padding: 8px 15px;" invisible="state in ['mapping', 'preview', 'done']">2. Mapping</span>
+                        <span class="badge" style="background: rgba(255,255,255,0.9); color: #667eea; padding: 8px 15px;" invisible="state != 'mapping'">2. Mapping</span>
+                        <span class="badge" style="background: rgba(255,255,255,0.3); color: white; padding: 8px 15px;" invisible="state not in ['preview', 'done']">2. Mapping ✓</span>
+                        
+                        <span class="badge" style="background: rgba(255,255,255,0.3); color: white; padding: 8px 15px;" invisible="state in ['preview', 'done']">3. Import</span>
+                        <span class="badge" style="background: rgba(255,255,255,0.9); color: #667eea; padding: 8px 15px;" invisible="state != 'preview'">3. Import</span>
+                        <span class="badge" style="background: rgba(255,255,255,0.3); color: white; padding: 8px 15px;" invisible="state != 'done'">3. Import ✓</span>
+                    </div>
+                </div>
+                
+                <!-- Étape 1: Upload -->
+                <div invisible="state != 'upload'">
+                    <group>
+                        <group string="📁 Fichier à importer">
+                            <field name="file" filename="filename" required="1"/>
+                            <field name="filename" invisible="1"/>
+                        </group>
+                        <group string="ℹ️ Formats supportés">
+                            <div class="alert alert-info mb-0">
+                                <strong>Excel (.xlsx)</strong> ou <strong>CSV (.csv)</strong><br/><br/>
+                                Le système détecte automatiquement :<br/>
+                                • Les colonnes (nom, prix, fournisseur...)<br/>
+                                • Le format des nombres<br/>
+                                • Le format des dates<br/>
+                                • Le séparateur CSV
+                            </div>
+                        </group>
+                    </group>
+                </div>
+                
+                <!-- Étape 2: Mapping -->
+                <div invisible="state != 'mapping'">
+                    <div class="alert alert-success">
+                        <strong>✅ Colonnes détectées :</strong> <field name="detected_columns" readonly="1" nolabel="1" class="d-inline"/>
+                    </div>
+                    
+                    <p class="text-muted">Vérifiez et ajustez le mapping des colonnes si nécessaire :</p>
+                    
+                    <group>
+                        <group string="🏷️ Informations principales">
+                            <field name="col_name" placeholder="Colonne contenant le nom"/>
+                            <field name="col_provider" placeholder="Colonne contenant le fournisseur"/>
+                            <field name="col_price" placeholder="Colonne contenant le prix"/>
+                            <field name="col_quantity" placeholder="Colonne contenant la quantité"/>
+                        </group>
+                        <group string="📋 Classification">
+                            <field name="col_cycle" placeholder="Colonne contenant le cycle"/>
+                            <field name="col_category" placeholder="Colonne contenant la priorité"/>
+                            <field name="col_department" placeholder="Colonne contenant le département"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="col_renewal" placeholder="Colonne contenant la date de renouvellement"/>
+                            <field name="col_notes" placeholder="Colonne contenant les notes"/>
+                        </group>
+                        <group>
+                            <div class="alert alert-warning mb-0">
+                                <strong>💡 Astuce :</strong> Laissez vide les colonnes non présentes dans votre fichier.
+                            </div>
+                        </group>
+                    </group>
+                </div>
+                
+                <!-- Étape 3: Prévisualisation -->
+                <div invisible="state != 'preview'">
+                    <div class="alert alert-info">
+                        <strong>📊 <field name="preview_count" readonly="1" class="d-inline"/> lignes</strong> prêtes à être importées
+                    </div>
+                    
+                    <field name="preview_html" readonly="1" nolabel="1"/>
+                </div>
+                
+                <!-- Étape 4: Résultat -->
+                <div invisible="state != 'done'">
+                    <field name="result_message" readonly="1" nolabel="1"/>
+                </div>
+                
+                <footer>
+                    <!-- Boutons étape Upload -->
+                    <button name="action_download_template" string="📥 Template CSV" type="object" class="btn-link" invisible="state != 'upload'"/>
+                    <button name="action_analyze" string="Analyser →" type="object" class="btn-primary" invisible="state != 'upload'"/>
+                    
+                    <!-- Boutons étape Mapping -->
+                    <button name="action_back" string="← Retour" type="object" class="btn-secondary" invisible="state != 'mapping'"/>
+                    <button name="action_preview" string="Prévisualiser →" type="object" class="btn-primary" invisible="state != 'mapping'"/>
+                    
+                    <!-- Boutons étape Preview -->
+                    <button name="action_back" string="← Retour" type="object" class="btn-secondary" invisible="state != 'preview'"/>
+                    <button name="action_import" string="✓ Importer" type="object" class="btn-success" invisible="state != 'preview'"/>
+                    
+                    <!-- Bouton fermer -->
+                    <button string="Fermer" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <record id="action_import_wizard" model="ir.actions.act_window">
+        <field name="name">📥 Import Excel/CSV</field>
+        <field name="res_model">clearspend.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    
+</odoo>

@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- ============================================ -->
+    <!-- CATÉGORIE DE MODULE -->
+    <!-- ============================================ -->
+    <record id="module_category_clearspend" model="ir.module.category">
+        <field name="name">ClearSpend</field>
+        <field name="description">Gestion des abonnements et dépenses SaaS</field>
+        <field name="sequence">50</field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- GROUPES DE SÉCURITÉ -->
+    <!-- ============================================ -->
+    
+    <!-- Utilisateur : voit uniquement son département -->
+    <record id="group_user" model="res.groups">
+        <field name="name">Utilisateur</field>
+        <field name="category_id" ref="module_category_clearspend"/>
+        <field name="comment">Peut voir et créer des abonnements/factures dans son département uniquement.</field>
+    </record>
+    
+    <!-- Manager : gère son département -->
+    <record id="group_manager" model="res.groups">
+        <field name="name">Manager Département</field>
+        <field name="category_id" ref="module_category_clearspend"/>
+        <field name="implied_ids" eval="[(4, ref('group_user'))]"/>
+        <field name="comment">Peut valider les abonnements et gérer les budgets de son département.</field>
+    </record>
+    
+    <!-- CFO/Admin : accès complet -->
+    <record id="group_cfo" model="res.groups">
+        <field name="name">CFO / Administrateur</field>
+        <field name="category_id" ref="module_category_clearspend"/>
+        <field name="implied_ids" eval="[(4, ref('group_manager'))]"/>
+        <field name="comment">Accès complet à tous les départements, configuration et rapports.</field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- GROUPE MODE AVANCÉ (assigné dynamiquement) -->
+    <!-- ============================================ -->
+    
+    <!-- Ce groupe est assigné/retiré automatiquement à TOUS les utilisateurs
+         quand le CFO change le mode dans Configuration > Paramètres.
+         Il contrôle la visibilité des menus et fonctionnalités avancées. -->
+    <record id="group_advanced_mode" model="res.groups">
+        <field name="name">🔵 Mode Avancé</field>
+        <field name="category_id" ref="module_category_clearspend"/>
+        <field name="comment">Groupe technique assigné automatiquement quand le mode Avancé est activé. Donne accès aux fonctionnalités avancées : Workflow, Prévisions, Intégrations API, OCR, Contrats.</field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- RÈGLES D'ACCÈS - ABONNEMENTS -->
+    <!-- ============================================ -->
+    
+    <!-- Utilisateurs : voient les abonnements de leur département -->
+    <record id="rule_subscription_user" model="ir.rule">
+        <field name="name">Abonnements : Mon département</field>
+        <field name="model_id" ref="model_clearspend_subscription"/>
+        <field name="domain_force">[
+            '|',
+            ('department_id', '=', False),
+            '|',
+            ('department_id.member_ids', 'in', [user.id]),
+            ('department_id.manager_id', '=', user.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <!-- CFO : accès complet aux abonnements -->
+    <record id="rule_subscription_cfo" model="ir.rule">
+        <field name="name">Abonnements : Accès complet CFO</field>
+        <field name="model_id" ref="model_clearspend_subscription"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_cfo'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- RÈGLES D'ACCÈS - FACTURES -->
+    <!-- ============================================ -->
+    
+    <record id="rule_invoice_user" model="ir.rule">
+        <field name="name">Factures : Mon département</field>
+        <field name="model_id" ref="model_clearspend_invoice"/>
+        <field name="domain_force">[
+            '|',
+            ('department_id', '=', False),
+            '|',
+            ('department_id.member_ids', 'in', [user.id]),
+            ('department_id.manager_id', '=', user.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <record id="rule_invoice_cfo" model="ir.rule">
+        <field name="name">Factures : Accès complet CFO</field>
+        <field name="model_id" ref="model_clearspend_invoice"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_cfo'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- RÈGLES D'ACCÈS - DÉPARTEMENTS -->
+    <!-- ============================================ -->
+    
+    <!-- Utilisateurs : voient leur département -->
+    <record id="rule_department_user" model="ir.rule">
+        <field name="name">Départements : Mon département (lecture)</field>
+        <field name="model_id" ref="model_clearspend_department"/>
+        <field name="domain_force">[
+            '|',
+            ('member_ids', 'in', [user.id]),
+            ('manager_id', '=', user.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <!-- Managers : peuvent modifier leur département -->
+    <record id="rule_department_manager" model="ir.rule">
+        <field name="name">Départements : Mon département (gestion)</field>
+        <field name="model_id" ref="model_clearspend_department"/>
+        <field name="domain_force">[('manager_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <!-- CFO : accès complet aux départements -->
+    <record id="rule_department_cfo" model="ir.rule">
+        <field name="name">Départements : Accès complet CFO</field>
+        <field name="model_id" ref="model_clearspend_department"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_cfo'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- RÈGLES D'ACCÈS - ALERTES -->
+    <!-- ============================================ -->
+    
+    <record id="rule_alert_user" model="ir.rule">
+        <field name="name">Alertes : Mon département</field>
+        <field name="model_id" ref="model_clearspend_alert"/>
+        <field name="domain_force">[
+            '|',
+            ('department_id', '=', False),
+            '|',
+            ('department_id.member_ids', 'in', [user.id]),
+            ('department_id.manager_id', '=', user.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <record id="rule_alert_cfo" model="ir.rule">
+        <field name="name">Alertes : Accès complet CFO</field>
+        <field name="model_id" ref="model_clearspend_alert"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_cfo'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- RÈGLES D'ACCÈS - CONTRATS -->
+    <!-- ============================================ -->
+    
+    <record id="rule_contract_user" model="ir.rule">
+        <field name="name">Contrats : Mon département</field>
+        <field name="model_id" ref="model_clearspend_contract"/>
+        <field name="domain_force">[
+            '|',
+            ('department_id', '=', False),
+            '|',
+            ('department_id.member_ids', 'in', [user.id]),
+            ('department_id.manager_id', '=', user.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <record id="rule_contract_cfo" model="ir.rule">
+        <field name="name">Contrats : Accès complet CFO</field>
+        <field name="model_id" ref="model_clearspend_contract"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_cfo'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- RÈGLES D'ACCÈS - BUDGETS -->
+    <!-- ============================================ -->
+    
+    <record id="rule_budget_user" model="ir.rule">
+        <field name="name">Budgets : Mon département (lecture)</field>
+        <field name="model_id" ref="model_clearspend_budget"/>
+        <field name="domain_force">[
+            '|',
+            ('department_id', '=', False),
+            '|',
+            ('department_id.member_ids', 'in', [user.id]),
+            ('department_id.manager_id', '=', user.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <record id="rule_budget_manager" model="ir.rule">
+        <field name="name">Budgets : Mon département (gestion)</field>
+        <field name="model_id" ref="model_clearspend_budget"/>
+        <field name="domain_force">[('department_id.manager_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <record id="rule_budget_cfo" model="ir.rule">
+        <field name="name">Budgets : Accès complet CFO</field>
+        <field name="model_id" ref="model_clearspend_budget"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_cfo'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- ACCÈS LECTURE SEULE - AUTRES MODÈLES -->
+    <!-- ============================================ -->
+    
+    <!-- Fournisseurs : lecture pour tous -->
+    <record id="rule_provider_all" model="ir.rule">
+        <field name="name">Fournisseurs : Lecture tous</field>
+        <field name="model_id" ref="model_clearspend_saas_provider"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <record id="rule_provider_cfo" model="ir.rule">
+        <field name="name">Fournisseurs : Gestion CFO</field>
+        <field name="model_id" ref="model_clearspend_saas_provider"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_cfo'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+</odoo>

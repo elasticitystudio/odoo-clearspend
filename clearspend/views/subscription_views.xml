@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_subscription_tree" model="ir.ui.view">
+        <field name="name">clearspend.subscription.tree</field>
+        <field name="model">clearspend.subscription</field>
+        <field name="arch" type="xml">
+            <tree decoration-muted="state in ('cancelled', 'rejected')" 
+                  decoration-info="state == 'draft'"
+                  decoration-warning="state in ('submitted', 'manager_approved')"
+                  decoration-bf="category == 'essential'"
+                  multi_edit="1">
+                <field name="is_favorite" widget="boolean_favorite" nolabel="1"/>
+                <field name="name" string="Abonnement"/>
+                <field name="provider_id" optional="show"/>
+                <field name="department_id" optional="show"/>
+                <field name="category" widget="badge"
+                       decoration-danger="category == 'essential'"
+                       decoration-warning="category == 'important'"
+                       decoration-info="category == 'optional'"
+                       decoration-muted="category == 'to_review'"/>
+                <field name="amount_eur" string="Montant €" sum="Total"/>
+                <field name="annual_amount" string="Annuel €" sum="Total annuel" optional="hide"/>
+                <field name="billing_cycle" string="Cycle"/>
+                <field name="renewal_date" string="Prochain renouvellement" optional="show"/>
+                <field name="responsible_id" widget="many2one_avatar_user" optional="hide"/>
+                <field name="state" widget="badge" 
+                       decoration-info="state == 'draft'"
+                       decoration-primary="state == 'submitted'"
+                       decoration-warning="state == 'manager_approved'"
+                       decoration-success="state == 'active'"
+                       decoration-danger="state in ('cancelled', 'rejected')"/>
+                <field name="unit_price" optional="hide"/>
+                <field name="quantity" optional="hide"/>
+                <field name="currency_id" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+    
+    <record id="view_subscription_form" model="ir.ui.view">
+        <field name="name">clearspend.subscription.form</field>
+        <field name="model">clearspend.subscription</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_toggle_favorite" type="object" 
+                            class="btn-link" icon="fa-star" title="Ajouter aux favoris"/>
+                    
+                    <!-- MODE SIMPLE: Activer directement -->
+                    <button name="action_submit" type="object" string="✅ Activer" 
+                            class="btn-success" invisible="state != 'draft' or workflow_enabled"/>
+                    
+                    <!-- MODE AVANCÉ: Workflow complet -->
+                    <button name="action_submit" type="object" string="📤 Soumettre" 
+                            class="btn-primary" invisible="state != 'draft' or not workflow_enabled"
+                            confirm="Soumettre pour approbation ?"/>
+                    
+                    <!-- WORKFLOW: Soumis → Approuvé Manager -->
+                    <button name="action_manager_approve" type="object" string="✅ Approuver (Manager)" 
+                            class="btn-success" invisible="state != 'submitted' or not workflow_enabled"
+                            groups="clearspend.group_manager"/>
+                    
+                    <!-- WORKFLOW: Approuvé Manager → Actif (CFO) -->
+                    <button name="action_cfo_approve" type="object" string="✅ Approuver (CFO)" 
+                            class="btn-success" invisible="state != 'manager_approved' or not workflow_enabled"
+                            groups="clearspend.group_cfo"/>
+                    
+                    <!-- CFO peut approuver directement depuis soumis -->
+                    <button name="action_cfo_approve" type="object" string="✅ Approuver direct (CFO)" 
+                            class="btn-info" invisible="state != 'submitted' or not workflow_enabled"
+                            groups="clearspend.group_cfo"/>
+                    
+                    <!-- Rejet -->
+                    <button name="%(action_reject_wizard)d" type="action" string="❌ Rejeter" 
+                            class="btn-warning" invisible="state not in ('submitted', 'manager_approved') or not workflow_enabled"
+                            groups="clearspend.group_manager"/>
+                    
+                    <!-- Résiliation -->
+                    <button name="action_cancel" type="object" string="🚫 Résilier" 
+                            class="btn-danger" invisible="state != 'active'"
+                            confirm="Êtes-vous sûr de vouloir résilier cet abonnement ?"/>
+                    
+                    <!-- Retour brouillon (après rejet) -->
+                    <button name="action_draft" type="object" string="↩ Modifier" 
+                            class="btn-secondary" invisible="state != 'rejected'"/>
+                    
+                    <!-- Réactivation -->
+                    <button name="action_reactivate" type="object" string="♻️ Réactiver" 
+                            class="btn-info" invisible="state != 'cancelled'"
+                            groups="clearspend.group_manager"/>
+                    
+                    <!-- Statusbar adapté au mode -->
+                    <field name="state" widget="statusbar" 
+                           statusbar_visible="draft,active" invisible="workflow_enabled"/>
+                    <field name="state" widget="statusbar" 
+                           statusbar_visible="draft,submitted,manager_approved,active" invisible="not workflow_enabled"/>
+                </header>
+                <sheet>
+                    <!-- Champs invisibles pour conditions -->
+                    <field name="is_favorite" invisible="1"/>
+                    <field name="requires_cfo_approval" invisible="1"/>
+                    <field name="workflow_enabled" invisible="1"/>
+                    
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_contracts" type="object" class="oe_stat_button" icon="fa-file-text-o">
+                            <field name="contract_count" widget="statinfo" string="Contrats"/>
+                        </button>
+                        <button name="action_view_invoices" type="object" class="oe_stat_button" icon="fa-file-pdf-o">
+                            <field name="invoice_count" widget="statinfo" string="Factures"/>
+                        </button>
+                        <button name="action_create_contract" type="object" class="oe_stat_button" icon="fa-plus"
+                                invisible="contract_count > 0" title="Créer un contrat lié">
+                            <span>+ Contrat</span>
+                        </button>
+                    </div>
+                    
+                    <widget name="web_ribbon" title="🚫 Résilié" bg_color="bg-danger" invisible="state != 'cancelled'"/>
+                    <widget name="web_ribbon" title="❌ Rejeté" bg_color="bg-warning" invisible="state != 'rejected'"/>
+                    <widget name="web_ribbon" title="⭐ Favori" bg_color="bg-info" invisible="not is_favorite"/>
+                    <widget name="web_ribbon" title="💰 Approbation CFO requise" bg_color="bg-primary" 
+                            invisible="not requires_cfo_approval or state not in ('draft', 'submitted')"/>
+                    
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Ex: Slack Business, Adobe CC, AWS..."/></h1>
+                    </div>
+                    
+                    <group>
+                        <group string="🏢 Fournisseur">
+                            <field name="provider_id" placeholder="Sélectionner ou créer..."
+                                   options="{'no_create_edit': False}"/>
+                            <field name="category" widget="radio" options="{'horizontal': true}"/>
+                        </group>
+                        <group string="👤 Responsable">
+                            <field name="responsible_id"/>
+                            <field name="department_id" placeholder="Sélectionner un département..."/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group string="💰 Tarification">
+                            <field name="unit_price" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="quantity"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                            <field name="amount" class="oe_subtotal_footer_separator" widget="monetary"/>
+                            <field name="amount_eur" string="Équivalent EUR" readonly="1"/>
+                            <field name="billing_cycle"/>
+                        </group>
+                        <group string="📅 Dates">
+                            <field name="start_date" placeholder="Date de début"/>
+                            <field name="renewal_date" placeholder="Prochaine échéance"/>
+                            <field name="billing_cycle" widget="radio" options="{'horizontal': true}"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="📝 Notes" name="notes">
+                            <field name="notes" placeholder="Informations complémentaires, identifiants, contacts..." 
+                                   nolabel="1"/>
+                        </page>
+                        <page string="🧾 Factures" name="invoices">
+                            <field name="invoice_refs" placeholder="Ex: FAC-2024-001, FAC-2024-015..." nolabel="1"/>
+                            <div class="alert alert-info mt-2" role="alert">
+                                <small>💡 Référencez ici les factures fournisseur ou utilisez l'inbox pour les associer automatiquement.</small>
+                            </div>
+                        </page>
+                        <page string="✅ Approbation" name="approval" 
+                              invisible="state == 'draft'">
+                            <!-- Alerte rejet -->
+                            <div class="alert alert-danger" role="alert" invisible="state != 'rejected'">
+                                <strong>❌ Cette demande a été rejetée</strong>
+                                <p><field name="rejection_reason" readonly="1" nolabel="1"/></p>
+                                <small>Par <field name="rejected_by_id" readonly="1" class="oe_inline"/> 
+                                       le <field name="rejection_date" readonly="1" class="oe_inline"/></small>
+                            </div>
+                            
+                            <group>
+                                <group string="📤 Soumission">
+                                    <field name="submitted_by_id" readonly="1"/>
+                                    <field name="submitted_date" readonly="1"/>
+                                    <field name="annual_amount" readonly="1"/>
+                                    <field name="requires_cfo_approval" readonly="1" 
+                                           widget="boolean" string="Approbation CFO requise"/>
+                                </group>
+                                <group string="✅ Approbations">
+                                    <field name="manager_approved_by_id" readonly="1"/>
+                                    <field name="manager_approval_date" readonly="1"/>
+                                    <field name="cfo_approved_by_id" readonly="1"/>
+                                    <field name="cfo_approval_date" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="message_ids"/>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    
+    <record id="view_subscription_search" model="ir.ui.view">
+        <field name="name">clearspend.subscription.search</field>
+        <field name="model">clearspend.subscription</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Nom" filter_domain="['|', ('name', 'ilike', self), ('provider_id.name', 'ilike', self)]"/>
+                <field name="provider_id"/>
+                <field name="responsible_id"/>
+                <field name="department_id"/>
+                <separator/>
+                <filter name="filter_favorites" string="⭐ Favoris" domain="[('is_favorite', '=', True)]"/>
+                <filter name="filter_active" string="✅ Actifs" domain="[('state', '=', 'active')]"/>
+                <filter name="filter_draft" string="📝 Brouillons" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_pending" string="⏳ En attente" domain="[('state', 'in', ['submitted', 'manager_approved'])]"/>
+                <filter name="filter_submitted" string="📤 Soumis" domain="[('state', '=', 'submitted')]"/>
+                <filter name="filter_manager_approved" string="✅ Approuvé Manager" domain="[('state', '=', 'manager_approved')]"/>
+                <filter name="filter_rejected" string="❌ Rejetés" domain="[('state', '=', 'rejected')]"/>
+                <filter name="filter_cancelled" string="🚫 Résiliés" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter name="filter_essential" string="🔴 Essentiels" domain="[('category', '=', 'essential')]"/>
+                <filter name="filter_important" string="🟠 Importants" domain="[('category', '=', 'important')]"/>
+                <filter name="filter_optional" string="🟡 Optionnels" domain="[('category', '=', 'optional')]"/>
+                <filter name="filter_to_review" string="⚪ À revoir" domain="[('category', '=', 'to_review')]"/>
+                <separator/>
+                <filter name="filter_renewal_soon" string="🔄 Renouvellement &lt;30j" 
+                        domain="[('renewal_date', '&lt;=', (context_today() + relativedelta(days=30)).strftime('%Y-%m-%d')), ('renewal_date', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_my_department" string="🏬 Mon département" 
+                        domain="['|', ('department_id.member_ids', 'in', [uid]), ('department_id.manager_id', '=', uid)]"/>
+                <separator/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_category" string="🎯 Priorité" context="{'group_by': 'category'}"/>
+                    <filter name="group_provider" string="🏢 Fournisseur" context="{'group_by': 'provider_id'}"/>
+                    <filter name="group_state" string="📊 Statut" context="{'group_by': 'state'}"/>
+                    <filter name="group_responsible" string="👤 Responsable" context="{'group_by': 'responsible_id'}"/>
+                    <filter name="group_cycle" string="🔄 Cycle" context="{'group_by': 'billing_cycle'}"/>
+                    <filter name="group_department" string="🏬 Département" context="{'group_by': 'department_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <record id="view_subscription_kanban" model="ir.ui.view">
+        <field name="name">clearspend.subscription.kanban</field>
+        <field name="model">clearspend.subscription</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="category" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="provider_id"/>
+                <field name="department_id"/>
+                <field name="amount"/>
+                <field name="amount_eur"/>
+                <field name="currency_id"/>
+                <field name="billing_cycle"/>
+                <field name="category"/>
+                <field name="state"/>
+                <field name="renewal_date"/>
+                <field name="responsible_id"/>
+                <field name="is_favorite"/>
+                <progressbar field="state" colors='{"draft": "info", "validated": "warning", "active": "success", "cancelled": "muted"}'/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click #{record.state.raw_value == 'cancelled' ? 'o_kanban_record_muted' : ''}"
+                             style="border-radius: 10px; border-left: 4px solid #{record.category.raw_value == 'essential' ? '#dc3545' : record.category.raw_value == 'important' ? '#fd7e14' : record.category.raw_value == 'optional' ? '#ffc107' : '#6c757d'};">
+                            <div class="oe_kanban_content p-2">
+                                <!-- Header -->
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="flex-grow-1">
+                                        <strong style="font-size: 1.05em;">
+                                            <t t-if="record.is_favorite.raw_value"><span style="color: #ffc107;">★</span> </t>
+                                            <field name="name"/>
+                                        </strong>
+                                        <div t-if="record.provider_id.value" class="text-muted" style="font-size: 0.85em;">
+                                            <field name="provider_id"/>
+                                        </div>
+                                    </div>
+                                    <span t-attf-class="badge #{record.state.raw_value == 'active' ? 'bg-success' : record.state.raw_value == 'validated' ? 'bg-warning text-dark' : record.state.raw_value == 'draft' ? 'bg-info' : 'bg-secondary'}" 
+                                          style="font-size: 0.75em;">
+                                        <field name="state"/>
+                                    </span>
+                                </div>
+                                
+                                <!-- Montant -->
+                                <div class="text-center py-2 my-2" style="background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: 600; color: #667eea;">
+                                        <field name="amount"/> <field name="currency_id"/>
+                                    </div>
+                                    <small class="text-muted">
+                                        par <t t-if="record.billing_cycle.raw_value == 'monthly'">mois</t>
+                                        <t t-if="record.billing_cycle.raw_value == 'quarterly'">trimestre</t>
+                                        <t t-if="record.billing_cycle.raw_value == 'yearly'">an</t>
+                                    </small>
+                                </div>
+                                
+                                <!-- Renouvellement -->
+                                <div t-if="record.renewal_date.raw_value" class="text-center mb-2">
+                                    <small class="badge bg-light text-dark">
+                                        🔄 <field name="renewal_date"/>
+                                    </small>
+                                </div>
+                                
+                                <!-- Footer -->
+                                <div class="d-flex justify-content-between align-items-center pt-2" style="border-top: 1px solid #eee;">
+                                    <field name="responsible_id" widget="many2one_avatar_user"/>
+                                    <small class="text-muted" style="font-size: 0.8em;">
+                                        ≈ <field name="amount_eur" widget="float" digits="[10,0]"/>€/mois
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    
+    <record id="action_subscription" model="ir.actions.act_window">
+        <field name="name">💳 Abonnements</field>
+        <field name="res_model">clearspend.subscription</field>
+        <field name="view_mode">tree,kanban,form,graph,pivot</field>
+        <field name="context">{
+            'search_default_filter_active': 1,
+            'search_default_group_category': 0,
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez votre premier abonnement SaaS
+            </p>
+            <p>
+                Ajoutez vos abonnements logiciels, services cloud et dépenses récurrentes pour suivre vos coûts.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Vue Graph par priorité -->
+    <record id="view_subscription_graph_category" model="ir.ui.view">
+        <field name="name">clearspend.subscription.graph.category</field>
+        <field name="model">clearspend.subscription</field>
+        <field name="arch" type="xml">
+            <graph type="pie">
+                <field name="category" type="row"/>
+                <field name="amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
+    <!-- Vue Graph par fournisseur -->
+    <record id="view_subscription_graph_provider" model="ir.ui.view">
+        <field name="name">clearspend.subscription.graph.provider</field>
+        <field name="model">clearspend.subscription</field>
+        <field name="arch" type="xml">
+            <graph type="bar">
+                <field name="provider_id" type="row"/>
+                <field name="amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
+    <!-- Vue Graph par cycle -->
+    <record id="view_subscription_graph_cycle" model="ir.ui.view">
+        <field name="name">clearspend.subscription.graph.cycle</field>
+        <field name="model">clearspend.subscription</field>
+        <field name="arch" type="xml">
+            <graph type="pie">
+                <field name="billing_cycle" type="row"/>
+                <field name="amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
+    <!-- Vue Pivot -->
+    <record id="view_subscription_pivot" model="ir.ui.view">
+        <field name="name">clearspend.subscription.pivot</field>
+        <field name="model">clearspend.subscription</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="category" type="row"/>
+                <field name="billing_cycle" type="col"/>
+                <field name="amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    
+    <!-- Action graphiques dédiée -->
+    <record id="action_subscription_graphs" model="ir.actions.act_window">
+        <field name="name">📊 Graphiques abonnements</field>
+        <field name="res_model">clearspend.subscription</field>
+        <field name="view_mode">graph,pivot,tree</field>
+        <field name="domain">[('state', 'in', ['active', 'validated'])]</field>
+    </record>
+    
+    <record id="action_export_excel" model="ir.actions.server">
+        <field name="name">📥 Export Excel</field>
+        <field name="model_id" ref="model_clearspend_subscription"/>
+        <field name="binding_model_id" ref="model_clearspend_subscription"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_export_excel()</field>
+    </record>
+    
+    <!-- Actions Workflow -->
+    <record id="action_pending_approval" model="ir.actions.act_window">
+        <field name="name">⏳ En attente d'approbation</field>
+        <field name="res_model">clearspend.subscription</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('state', 'in', ['submitted', 'manager_approved'])]</field>
+        <field name="context">{'search_default_filter_pending': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune demande en attente
+            </p>
+            <p>
+                Les demandes d'abonnement soumises apparaîtront ici pour validation.
+            </p>
+        </field>
+    </record>
+    
+    <record id="action_my_pending_approval" model="ir.actions.act_window">
+        <field name="name">📋 Mes demandes à valider</field>
+        <field name="res_model">clearspend.subscription</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[
+            ('state', 'in', ['submitted', 'manager_approved']),
+            '|',
+            ('department_id.manager_id', '=', uid),
+            ('department_id', '=', False)
+        ]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune demande à valider
+            </p>
+            <p>
+                Les demandes de votre département apparaîtront ici.
+            </p>
+        </field>
+    </record>
+    
+    <record id="action_rejected_subscriptions" model="ir.actions.act_window">
+        <field name="name">❌ Demandes rejetées</field>
+        <field name="res_model">clearspend.subscription</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state', '=', 'rejected')]</field>
+    </record>
+    
+</odoo>

@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Vue Tree Factures -->
+    <record id="view_invoice_tree" model="ir.ui.view">
+        <field name="name">clearspend.invoice.tree</field>
+        <field name="model">clearspend.invoice</field>
+        <field name="arch" type="xml">
+            <tree decoration-success="state == 'matched'" 
+                  decoration-muted="state == 'archived'"
+                  decoration-info="state == 'inbox'">
+                <field name="invoice_date"/>
+                <field name="name"/>
+                <field name="vendor_name"/>
+                <field name="provider_id"/>
+                <field name="department_id" optional="show"/>
+                <field name="amount" sum="Total"/>
+                <field name="subscription_id"/>
+                <field name="match_confidence"/>
+                <field name="is_from_odoo" widget="boolean" optional="hide"/>
+                <field name="is_paid" widget="boolean_toggle"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'inbox'"
+                       decoration-warning="state == 'processing'"
+                       decoration-success="state == 'matched'"
+                       decoration-muted="state == 'archived'"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Vue Kanban Factures (style inbox) -->
+    <record id="view_invoice_kanban" model="ir.ui.view">
+        <field name="name">clearspend.invoice.kanban</field>
+        <field name="model">clearspend.invoice</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="vendor_name"/>
+                <field name="provider_id"/>
+                <field name="amount"/>
+                <field name="invoice_date"/>
+                <field name="subscription_id"/>
+                <field name="match_confidence"/>
+                <field name="state"/>
+                <field name="invoice_file"/>
+                <field name="is_paid"/>
+                <field name="is_from_odoo"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click #{record.is_paid.raw_value ? 'bg-light' : ''}">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong>
+                                            <t t-if="record.invoice_file.raw_value">📎 </t>
+                                            <t t-if="record.is_from_odoo.raw_value">🔗 </t>
+                                            <field name="name"/>
+                                        </strong>
+                                    </div>
+                                    <div>
+                                        <field name="is_paid" widget="boolean_toggle"/>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <div>
+                                        <t t-if="record.provider_id.value">
+                                            <span class="badge bg-secondary"><field name="provider_id"/></span>
+                                        </t>
+                                        <t t-elif="record.vendor_name.value">
+                                            <small class="text-muted"><field name="vendor_name"/></small>
+                                        </t>
+                                    </div>
+                                    <div class="mt-2">
+                                        <strong class="text-primary"><field name="amount"/> €</strong>
+                                    </div>
+                                    <div class="mt-1">
+                                        <small class="text-muted">📅 <field name="invoice_date"/></small>
+                                    </div>
+                                    <div t-if="record.subscription_id.value" class="mt-2">
+                                        <span class="badge bg-success">
+                                            ✓ <field name="subscription_id"/>
+                                        </span>
+                                    </div>
+                                    <div t-elif="record.match_confidence.raw_value != 'none'" class="mt-2">
+                                        <small>
+                                            <field name="match_confidence"/> confiance
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    
+    <!-- Vue Form Factures -->
+    <record id="view_invoice_form" model="ir.ui.view">
+        <field name="name">clearspend.invoice.form</field>
+        <field name="model">clearspend.invoice</field>
+        <field name="arch" type="xml">
+            <form>
+                <!-- Champs invisibles nécessaires pour les conditions -->
+                <field name="odoo_move_id" invisible="1"/>
+                <field name="ocr_processed" invisible="1"/>
+                
+                <header>
+                    <button name="action_process_ocr" type="object" string="🔍 Analyser OCR" 
+                            class="btn-warning" invisible="ocr_processed or not invoice_file"/>
+                    <button name="action_process" type="object" string="🔄 Traiter" 
+                            class="btn-primary" invisible="state != 'inbox'"/>
+                    <button name="action_match" type="object" string="✅ Associer" 
+                            class="btn-success" invisible="state == 'matched' or state == 'archived'"/>
+                    <button name="action_mark_paid" type="object" string="💰 Marquer payée" 
+                            class="btn-info" invisible="is_paid"/>
+                    <button name="action_archive" type="object" string="📦 Archiver" 
+                            class="btn-secondary" invisible="state == 'archived'"/>
+                    <button name="action_back_to_inbox" type="object" string="↩️ Retour inbox" 
+                            invisible="state == 'inbox'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="inbox,processing,matched"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_subscription" type="object" 
+                                class="oe_stat_button" icon="fa-list"
+                                invisible="not subscription_id">
+                            <span>Abonnement</span>
+                        </button>
+                        <button name="action_open_odoo_invoice" type="object" 
+                                class="oe_stat_button" icon="fa-file-text"
+                                invisible="not odoo_move_id">
+                            <span>Facture Odoo</span>
+                        </button>
+                        <button name="action_process_ocr" type="object" 
+                                class="oe_stat_button" icon="fa-magic"
+                                invisible="not invoice_file">
+                            <div class="o_stat_info">
+                                <field name="ocr_confidence" widget="statinfo" string="OCR %"/>
+                            </div>
+                        </button>
+                    </div>
+                    
+                    <widget name="web_ribbon" title="Payée" bg_color="bg-success" 
+                            invisible="not is_paid"/>
+                    <widget name="web_ribbon" title="Depuis Odoo" bg_color="bg-info" 
+                            invisible="not is_from_odoo"/>
+                    <widget name="web_ribbon" title="OCR analysé" bg_color="bg-warning" 
+                            invisible="not ocr_processed"/>
+                    
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Référence facture"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="📄 Document">
+                            <field name="invoice_file" filename="invoice_filename"/>
+                            <field name="invoice_filename" invisible="1"/>
+                            <field name="file_size" invisible="not invoice_file"/>
+                            <field name="odoo_move_name" invisible="not is_from_odoo" readonly="1"/>
+                            <field name="source" readonly="1"/>
+                        </group>
+                        <group string="🏢 Fournisseur">
+                            <field name="vendor_name" placeholder="Nom du fournisseur sur la facture"/>
+                            <field name="provider_id"/>
+                            <field name="api_connection_id" readonly="1" invisible="not api_connection_id"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group string="💰 Montants">
+                            <field name="amount_ht"/>
+                            <field name="amount"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                        </group>
+                        <group string="📅 Dates">
+                            <field name="invoice_date"/>
+                            <field name="due_date"/>
+                            <field name="period_start"/>
+                            <field name="period_end"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group string="💳 Paiement">
+                            <field name="is_paid"/>
+                            <field name="payment_date" invisible="not is_paid"/>
+                            <field name="payment_method"/>
+                        </group>
+                        <group string="🔗 Matching">
+                            <field name="match_confidence"/>
+                            <field name="subscription_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    
+                    <!-- Résultats OCR -->
+                    <group string="🔍 Résultats OCR" invisible="not ocr_processed">
+                        <group>
+                            <field name="ocr_confidence" widget="progressbar"/>
+                            <field name="ocr_detected_provider"/>
+                            <field name="ocr_detected_amount"/>
+                            <field name="ocr_detected_date"/>
+                        </group>
+                        <group>
+                            <field name="ocr_raw_text" readonly="1" widget="text"/>
+                        </group>
+                    </group>
+                    
+                    <!-- Suggestions de matching -->
+                    <div class="alert alert-info" role="alert" invisible="not subscription_ids or subscription_id">
+                        <h6>💡 Abonnements suggérés</h6>
+                        <field name="subscription_ids" widget="many2many_tags" readonly="1"/>
+                        <p class="mb-0 mt-2">
+                            <small>Cliquez sur un abonnement suggéré pour l'associer, ou sélectionnez-en un manuellement ci-dessus.</small>
+                        </p>
+                    </div>
+                    
+                    <separator string="📝 Notes"/>
+                    <field name="notes" placeholder="Notes sur cette facture..."/>
+                    
+                    <field name="is_from_odoo" invisible="1"/>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Vue Search Factures -->
+    <record id="view_invoice_search" model="ir.ui.view">
+        <field name="name">clearspend.invoice.search</field>
+        <field name="model">clearspend.invoice</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="vendor_name"/>
+                <field name="provider_id"/>
+                <field name="subscription_id"/>
+                <field name="department_id"/>
+                <filter name="filter_inbox" string="📥 Inbox" domain="[('state', '=', 'inbox')]"/>
+                <filter name="filter_processing" string="🔄 En traitement" domain="[('state', '=', 'processing')]"/>
+                <filter name="filter_matched" string="✅ Associées" domain="[('state', '=', 'matched')]"/>
+                <filter name="filter_archived" string="📦 Archivées" domain="[('state', '=', 'archived')]"/>
+                <separator/>
+                <filter name="filter_unpaid" string="💸 Non payées" domain="[('is_paid', '=', False)]"/>
+                <filter name="filter_paid" string="✅ Payées" domain="[('is_paid', '=', True)]"/>
+                <separator/>
+                <filter name="filter_from_odoo" string="🔗 Depuis Odoo" domain="[('is_from_odoo', '=', True)]"/>
+                <filter name="filter_manual" string="📝 Saisie manuelle" domain="[('is_from_odoo', '=', False)]"/>
+                <separator/>
+                <filter name="filter_no_match" string="❓ Sans abonnement" domain="[('subscription_id', '=', False)]"/>
+                <filter name="filter_with_file" string="📎 Avec fichier" domain="[('invoice_file', '!=', False)]"/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
+                    <filter name="group_provider" string="Fournisseur" context="{'group_by': 'provider_id'}"/>
+                    <filter name="group_subscription" string="Abonnement" context="{'group_by': 'subscription_id'}"/>
+                    <filter name="group_department" string="Département" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_month" string="Mois" context="{'group_by': 'invoice_date:month'}"/>
+                    <filter name="group_odoo" string="Source" context="{'group_by': 'is_from_odoo'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <!-- Action principale Inbox -->
+    <record id="action_invoice_inbox" model="ir.actions.act_window">
+        <field name="name">📥 Inbox Factures</field>
+        <field name="res_model">clearspend.invoice</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="context">{'search_default_filter_inbox': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune facture dans l'inbox
+            </p>
+            <p>
+                Uploadez vos factures SaaS ou synchronisez depuis Odoo Comptabilité.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Action toutes les factures -->
+    <record id="action_invoice_all" model="ir.actions.act_window">
+        <field name="name">📄 Toutes les factures</field>
+        <field name="res_model">clearspend.invoice</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune facture enregistrée
+            </p>
+        </field>
+    </record>
+    
+    <!-- Action synchronisation manuelle Odoo -->
+    <record id="action_sync_odoo_invoices" model="ir.actions.server">
+        <field name="name">🔄 Synchroniser depuis Odoo</field>
+        <field name="model_id" ref="model_clearspend_invoice"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_manual_sync()</field>
+    </record>
+    
+    <!-- Action auto-matching -->
+    <record id="action_auto_match_invoices" model="ir.actions.server">
+        <field name="name">🔄 Auto-matching factures</field>
+        <field name="model_id" ref="model_clearspend_invoice"/>
+        <field name="binding_model_id" ref="model_clearspend_invoice"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">records.action_auto_match()</field>
+    </record>
+    
+</odoo>

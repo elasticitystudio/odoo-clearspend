@@ -1,0 +1,9 @@
+nom;fournisseur;prix;quantite;cycle;priorite;departement;renouvellement;notes
+Slack Business+;Slack;12.50;10;mensuel;essentiel;IT;2025-06-01;Communication équipe
+GitHub Team;GitHub;4.00;5;mensuel;essentiel;Dev;;Repos privés
+Notion Team;Notion;8.00;10;mensuel;important;Tous;;Wiki interne
+Figma Professional;Figma;15.00;3;mensuel;important;Design;;UI/UX
+Zoom Business;Zoom;199.90;1;annuel;important;Direction;2025-03-15;Visioconférences
+Adobe Creative Cloud;Adobe;59.99;2;mensuel;optionnel;Marketing;;Suite créative
+Mailchimp Standard;Mailchimp;20.00;1;mensuel;optionnel;Marketing;;Newsletter
+1Password Teams;1Password;7.99;15;mensuel;essentiel;IT;;Gestionnaire MDP

@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Vue Form du wizard d'onboarding -->
+    <record id="view_onboarding_wizard_form" model="ir.ui.view">
+        <field name="name">clearspend.onboarding.wizard.form</field>
+        <field name="model">clearspend.onboarding.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <!-- Barre de progression -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">Étape <field name="step_number" readonly="1"/> / 7</small>
+                        <small class="text-muted"><field name="progress_percent" readonly="1"/>%</small>
+                    </div>
+                    <div class="progress" style="height: 8px; border-radius: 10px;">
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: 14%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+                             invisible="step != 'welcome'"/>
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: 28%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+                             invisible="step != 'setup'"/>
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: 42%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+                             invisible="step != 'import_choice'"/>
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: 57%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+                             invisible="step != 'first_sub'"/>
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: 71%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+                             invisible="step != 'budget'"/>
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: 85%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+                             invisible="step != 'alerts'"/>
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: 100%; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);"
+                             invisible="step != 'done'"/>
+                    </div>
+                </div>
+                
+                <field name="step" invisible="1"/>
+                
+                <!-- ============================================ -->
+                <!-- ÉTAPE 1: BIENVENUE -->
+                <!-- ============================================ -->
+                <div invisible="step != 'welcome'" class="text-center p-4">
+                    <div style="font-size: 4em; margin-bottom: 20px;">🎛️</div>
+                    <h2 style="color: #667eea; margin-bottom: 15px;">Bienvenue dans ClearSpend !</h2>
+                    <p class="text-muted" style="font-size: 1.1em; max-width: 500px; margin: 0 auto 30px;">
+                        Prenez le contrôle de vos abonnements SaaS et dépenses récurrentes 
+                        en quelques étapes simples.
+                    </p>
+                    
+                    <div class="row mt-4" style="max-width: 600px; margin: 0 auto;">
+                        <div class="col-4 text-center p-3">
+                            <div style="font-size: 2em;">📊</div>
+                            <small class="text-muted">Visualisez vos dépenses</small>
+                        </div>
+                        <div class="col-4 text-center p-3">
+                            <div style="font-size: 2em;">🔔</div>
+                            <small class="text-muted">Alertes automatiques</small>
+                        </div>
+                        <div class="col-4 text-center p-3">
+                            <div style="font-size: 2em;">💡</div>
+                            <small class="text-muted">Économies détectées</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ============================================ -->
+                <!-- ÉTAPE 2: CONFIGURATION -->
+                <!-- ============================================ -->
+                <div invisible="step != 'setup'" class="p-4">
+                    <div class="text-center mb-4">
+                        <div style="font-size: 3em;">🏢</div>
+                        <h3 style="color: #667eea;">Configuration de base</h3>
+                        <p class="text-muted">Vérifiez les informations de votre entreprise</p>
+                    </div>
+                    
+                    <group>
+                        <group>
+                            <field name="company_name" placeholder="Nom de votre entreprise"/>
+                            <field name="currency_id"/>
+                        </group>
+                    </group>
+                </div>
+                
+                <!-- ============================================ -->
+                <!-- ÉTAPE 3: CHOIX IMPORT -->
+                <!-- ============================================ -->
+                <div invisible="step != 'import_choice'" class="p-4">
+                    <div class="text-center mb-4">
+                        <div style="font-size: 3em;">📥</div>
+                        <h3 style="color: #667eea;">Comment souhaitez-vous démarrer ?</h3>
+                        <p class="text-muted">Choisissez la méthode qui vous convient</p>
+                    </div>
+                    
+                    <field name="import_choice" widget="radio" class="d-flex flex-column gap-3">
+                        <div class="p-3 border rounded" style="cursor: pointer;">
+                            <strong>🎮 Données de démonstration</strong>
+                            <p class="text-muted mb-0 small">Explorez ClearSpend avec des données réalistes pré-remplies</p>
+                        </div>
+                        <div class="p-3 border rounded" style="cursor: pointer;">
+                            <strong>📥 Importer un fichier</strong>
+                            <p class="text-muted mb-0 small">Importez vos abonnements depuis un fichier CSV ou Excel</p>
+                        </div>
+                        <div class="p-3 border rounded" style="cursor: pointer;">
+                            <strong>✏️ Saisie manuelle</strong>
+                            <p class="text-muted mb-0 small">Ajoutez vos abonnements un par un</p>
+                        </div>
+                    </field>
+                </div>
+                
+                <!-- ============================================ -->
+                <!-- ÉTAPE 4: PREMIER ABONNEMENT -->
+                <!-- ============================================ -->
+                <div invisible="step != 'first_sub'" class="p-4">
+                    <div class="text-center mb-4">
+                        <div style="font-size: 3em;">💳</div>
+                        <h3 style="color: #667eea;">Votre premier abonnement</h3>
+                        <p class="text-muted">Ajoutez votre abonnement principal pour commencer</p>
+                    </div>
+                    
+                    <group>
+                        <group>
+                            <field name="first_sub_name" placeholder="Ex: Slack Business, Office 365..."/>
+                            <field name="first_sub_amount"/>
+                            <field name="first_sub_cycle" widget="radio" options="{'horizontal': true}"/>
+                            <field name="first_sub_category" widget="radio"/>
+                        </group>
+                    </group>
+                    
+                    <div class="alert alert-info mt-3" role="alert">
+                        <small>💡 Vous pourrez ajouter d'autres abonnements après la configuration.</small>
+                    </div>
+                </div>
+                
+                <!-- ============================================ -->
+                <!-- ÉTAPE 5: BUDGET -->
+                <!-- ============================================ -->
+                <div invisible="step != 'budget'" class="p-4">
+                    <div class="text-center mb-4">
+                        <div style="font-size: 3em;">💰</div>
+                        <h3 style="color: #667eea;">Définissez votre budget</h3>
+                        <p class="text-muted">Quel est votre budget mensuel cible pour les abonnements SaaS ?</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="d-inline-block p-4" style="background: #f8f9fa; border-radius: 15px;">
+                            <field name="monthly_budget" widget="float" 
+                                   style="font-size: 2.5em; font-weight: bold; color: #667eea; width: 200px; text-align: center; border: none; background: transparent;"/>
+                            <div class="text-muted">€ / mois</div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-light mt-4 text-center" role="alert">
+                        <small>Ce budget vous permettra de suivre vos dépenses et de recevoir des alertes en cas de dépassement.</small>
+                    </div>
+                </div>
+                
+                <!-- ============================================ -->
+                <!-- ÉTAPE 6: ALERTES -->
+                <!-- ============================================ -->
+                <div invisible="step != 'alerts'" class="p-4">
+                    <div class="text-center mb-4">
+                        <div style="font-size: 3em;">🔔</div>
+                        <h3 style="color: #667eea;">Configurez vos alertes</h3>
+                        <p class="text-muted">Soyez notifié au bon moment</p>
+                    </div>
+                    
+                    <group>
+                        <group string="📅 Renouvellements">
+                            <label for="alert_renewal_days"/>
+                            <div class="d-flex align-items-center gap-2">
+                                <field name="alert_renewal_days" style="width: 80px;"/>
+                                <span class="text-muted">jours avant l'échéance</span>
+                            </div>
+                        </group>
+                        <group string="📊 Budget">
+                            <label for="alert_budget_threshold"/>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-muted">Alerte à</span>
+                                <field name="alert_budget_threshold" style="width: 80px;"/>
+                                <span class="text-muted">% du budget</span>
+                            </div>
+                        </group>
+                    </group>
+                    
+                    <div class="mt-4 p-3" style="background: #f8f9fa; border-radius: 10px;">
+                        <field name="enable_email_alerts"/>
+                        <label for="enable_email_alerts" class="ms-2">Recevoir les alertes par email</label>
+                    </div>
+                </div>
+                
+                <!-- ============================================ -->
+                <!-- ÉTAPE 7: TERMINÉ -->
+                <!-- ============================================ -->
+                <div invisible="step != 'done'" class="text-center p-4">
+                    <div style="font-size: 5em; margin-bottom: 20px;">🎉</div>
+                    <h2 style="color: #11998e; margin-bottom: 15px;">Vous êtes prêt !</h2>
+                    <p class="text-muted" style="font-size: 1.1em; max-width: 500px; margin: 0 auto 30px;">
+                        Votre espace ClearSpend est configuré.<br/>
+                        Explorez le cockpit pour découvrir vos insights.
+                    </p>
+                    
+                    <div class="row mt-4" style="max-width: 500px; margin: 0 auto;">
+                        <div class="col-6 text-center p-3">
+                            <div class="p-3" style="background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%); border-radius: 10px;">
+                                <div style="font-size: 1.5em;">🎛️</div>
+                                <small>Cockpit FinOps</small>
+                            </div>
+                        </div>
+                        <div class="col-6 text-center p-3">
+                            <div class="p-3" style="background: linear-gradient(135deg, rgba(17,153,142,0.1) 0%, rgba(56,239,125,0.1) 100%); border-radius: 10px;">
+                                <div style="font-size: 1.5em;">💡</div>
+                                <small>Économies détectées</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ============================================ -->
+                <!-- BOUTONS DE NAVIGATION -->
+                <!-- ============================================ -->
+                <footer class="mt-4 pt-3" style="border-top: 1px solid #eee;">
+                    <div class="d-flex justify-content-between">
+                        <!-- Bouton Retour -->
+                        <button name="action_previous" type="object" 
+                                class="btn btn-secondary"
+                                invisible="step == 'welcome'">
+                            ← Retour
+                        </button>
+                        <div invisible="step != 'welcome'"/>
+                        
+                        <!-- Boutons droite -->
+                        <div class="d-flex gap-2">
+                            <!-- Passer (optionnel) -->
+                            <button name="action_skip" type="object" 
+                                    class="btn btn-link text-muted"
+                                    invisible="step in ('welcome', 'import_choice', 'done')">
+                                Passer
+                            </button>
+                            
+                            <!-- Suivant -->
+                            <button name="action_next" type="object" 
+                                    class="btn btn-primary"
+                                    invisible="step == 'done'"
+                                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 10px 30px;">
+                                <span invisible="step == 'alerts'">Suivant →</span>
+                                <span invisible="step != 'alerts'">Terminer ✓</span>
+                            </button>
+                            
+                            <!-- Aller au cockpit (dernière étape) -->
+                            <button name="action_go_to_cockpit" type="object" 
+                                    class="btn btn-success"
+                                    invisible="step != 'done'"
+                                    style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; padding: 10px 30px;">
+                                🎛️ Aller au Cockpit
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Lien pour passer l'onboarding -->
+                    <div class="text-center mt-3" invisible="step not in ('welcome', 'setup')">
+                        <button name="action_go_to_cockpit" type="object" class="btn btn-link text-muted btn-sm">
+                            Passer la configuration →
+                        </button>
+                    </div>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Action pour lancer l'onboarding manuellement -->
+    <record id="action_launch_onboarding" model="ir.actions.act_window">
+        <field name="name">🚀 Assistant de démarrage</field>
+        <field name="res_model">clearspend.onboarding.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'dialog_size': 'medium'}</field>
+    </record>
+    
+    <!-- Action serveur pour réinitialiser l'onboarding -->
+    <record id="action_reset_onboarding" model="ir.actions.server">
+        <field name="name">🔄 Relancer l'assistant</field>
+        <field name="model_id" ref="base.model_res_users"/>
+        <field name="state">code</field>
+        <field name="code">
+env['ir.config_parameter'].sudo().set_param('clearspend.onboarding_complete', 'False')
+wizard = env['clearspend.onboarding.wizard'].create({})
+action = {
+    'type': 'ir.actions.act_window',
+    'name': '🚀 Assistant de démarrage',
+    'res_model': 'clearspend.onboarding.wizard',
+    'res_id': wizard.id,
+    'view_mode': 'form',
+    'target': 'new',
+}
+        </field>
+    </record>
+    
+</odoo>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ClearSpend - Gestion intelligente des abonnements SaaS</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .hero {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #1a5f7a 0%, #2d8fbe 100%);
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 40px;
+        }
+        .hero h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .hero p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9em;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        .feature {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #1a5f7a;
+        }
+        .feature h3 {
+            color: #1a5f7a;
+            margin-top: 0;
+        }
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .modes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 40px 0;
+        }
+        .mode {
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid;
+        }
+        .mode-simple {
+            border-color: #28a745;
+            background: #f0fff4;
+        }
+        .mode-advanced {
+            border-color: #007bff;
+            background: #f0f7ff;
+        }
+        .mode h3 {
+            margin-top: 0;
+        }
+        .mode-simple h3 { color: #28a745; }
+        .mode-advanced h3 { color: #007bff; }
+        .mode ul {
+            padding-left: 20px;
+        }
+        .mode li {
+            margin: 8px 0;
+        }
+        .screenshot {
+            text-align: center;
+            margin: 40px 0;
+        }
+        .screenshot img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .highlight {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .highlight h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .check { color: #28a745; }
+        .cross { color: #dc3545; }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        footer a {
+            color: #1a5f7a;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        @media (max-width: 600px) {
+            .modes {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>💰 ClearSpend</h1>
+    <p>Gestion intelligente des abonnements SaaS &amp; dépenses récurrentes</p>
+    <div>
+        <span class="badge">Odoo 17</span>
+        <span class="badge">FinOps</span>
+        <span class="badge">SaaS Management</span>
+    </div>
+</div>
+
+<h2>🎯 Pourquoi ClearSpend ?</h2>
+<p>
+    Les entreprises gaspillent en moyenne <strong>30% de leur budget SaaS</strong> à cause d'abonnements oubliés, 
+    de doublons ou de licences non utilisées. ClearSpend vous aide à reprendre le contrôle de vos dépenses 
+    récurrentes directement depuis Odoo.
+</p>
+
+<div class="features">
+    <div class="feature">
+        <div class="feature-icon">📊</div>
+        <h3>Dashboard Intelligent</h3>
+        <p>Vue d'ensemble de tous vos abonnements avec KPIs en temps réel : coût total, tendances, alertes de renouvellement.</p>
+    </div>
+    <div class="feature">
+        <div class="feature-icon">🔔</div>
+        <h3>Alertes Automatiques</h3>
+        <p>Notifications avant les renouvellements, dépassements de budget et anomalies détectées automatiquement.</p>
+    </div>
+    <div class="feature">
+        <div class="feature-icon">📈</div>
+        <h3>Prévisions Budgétaires</h3>
+        <p>Anticipez vos dépenses avec des projections de 3 à 24 mois basées sur vos données historiques.</p>
+    </div>
+    <div class="feature">
+        <div class="feature-icon">🤖</div>
+        <h3>Import Automatique</h3>
+        <p>Importez vos abonnements depuis Excel/CSV ou extrayez automatiquement les données de vos factures par OCR.</p>
+    </div>
+</div>
+
+<h2>🔄 Deux Modes Adaptés à Vos Besoins</h2>
+<p>ClearSpend s'adapte à la taille et aux besoins de votre entreprise avec deux modes distincts :</p>
+
+<div class="modes">
+    <div class="mode mode-simple">
+        <h3>🟢 Mode Simple</h3>
+        <p><strong>Parfait pour les PME</strong></p>
+        <ul>
+            <li>Dashboard épuré avec KPIs essentiels</li>
+            <li>Gestion des abonnements</li>
+            <li>Budget global et alertes</li>
+            <li>Import Excel/CSV</li>
+            <li>Rapport PDF mensuel</li>
+        </ul>
+    </div>
+    <div class="mode mode-advanced">
+        <h3>🔵 Mode Avancé</h3>
+        <p><strong>Pour les grandes entreprises</strong></p>
+        <ul>
+            <li>Toutes les fonctions du mode simple</li>
+            <li>Workflow d'approbation multi-niveaux</li>
+            <li>Intégrations API (Stripe, AWS, GitHub...)</li>
+            <li>OCR automatique des factures</li>
+            <li>Gestion des contrats</li>
+            <li>Détection anomalies &amp; doublons</li>
+            <li>Recommandations d'économies</li>
+        </ul>
+    </div>
+</div>
+
+<div class="highlight">
+    <h3>💡 Passez d'un mode à l'autre en un clic !</h3>
+    <p>
+        Le menu et le dashboard s'adaptent automatiquement au mode choisi. 
+        Commencez en mode Simple et passez au mode Avancé quand votre entreprise grandit.
+    </p>
+</div>
+
+<h2>✨ Fonctionnalités Principales</h2>
+
+<table>
+    <tr>
+        <th>Fonctionnalité</th>
+        <th>Simple</th>
+        <th>Avancé</th>
+    </tr>
+    <tr>
+        <td>Gestion des abonnements SaaS</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+    </tr>
+    <tr>
+        <td>Dashboard avec KPIs</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+    </tr>
+    <tr>
+        <td>Alertes de renouvellement</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+    </tr>
+    <tr>
+        <td>Budget global</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+    </tr>
+    <tr>
+        <td>Import Excel/CSV</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+    </tr>
+    <tr>
+        <td>Rapport PDF mensuel</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+    </tr>
+    <tr>
+        <td>Workflow d'approbation</td>
+        <td class="cross">—</td>
+        <td class="check">✓</td>
+    </tr>
+    <tr>
+        <td>Intégrations API externes</td>
+        <td class="cross">—</td>
+        <td class="check">✓</td>
+    </tr>
+    <tr>
+        <td>OCR des factures</td>
+        <td class="cross">—</td>
+        <td class="check">✓</td>
+    </tr>
+    <tr>
+        <td>Gestion des contrats</td>
+        <td class="cross">—</td>
+        <td class="check">✓</td>
+    </tr>
+    <tr>
+        <td>Prévisions budgétaires</td>
+        <td class="cross">—</td>
+        <td class="check">✓</td>
+    </tr>
+    <tr>
+        <td>Détection des anomalies</td>
+        <td class="cross">—</td>
+        <td class="check">✓</td>
+    </tr>
+    <tr>
+        <td>Recommandations d'économies</td>
+        <td class="cross">—</td>
+        <td class="check">✓</td>
+    </tr>
+    <tr>
+        <td>Gestion par département</td>
+        <td class="cross">—</td>
+        <td class="check">✓</td>
+    </tr>
+</table>
+
+<h2>🔌 Intégrations Disponibles (Mode Avancé)</h2>
+<div class="features">
+    <div class="feature">
+        <h3>💳 Stripe</h3>
+        <p>Synchronisez automatiquement vos abonnements et paiements Stripe.</p>
+    </div>
+    <div class="feature">
+        <h3>☁️ AWS</h3>
+        <p>Importez vos coûts AWS Cost Explorer pour un suivi complet.</p>
+    </div>
+    <div class="feature">
+        <h3>🐙 GitHub</h3>
+        <p>Suivez vos abonnements GitHub Teams et Enterprise.</p>
+    </div>
+    <div class="feature">
+        <h3>📧 Google Workspace</h3>
+        <p>Gérez vos licences Google Workspace directement.</p>
+    </div>
+</div>
+
+<h2>📋 Prérequis</h2>
+<ul>
+    <li>Odoo 17.0 Community ou Enterprise</li>
+    <li>Modules requis : base, mail, web (installés automatiquement)</li>
+    <li>Python : openpyxl, requests</li>
+</ul>
+
+<h2>🚀 Installation</h2>
+<ol>
+    <li>Téléchargez le module depuis le Marketplace Odoo</li>
+    <li>Décompressez dans votre dossier addons</li>
+    <li>Mettez à jour la liste des applications dans Odoo</li>
+    <li>Installez "ClearSpend" depuis le menu Applications</li>
+    <li>Configurez le mode (Simple/Avancé) dans les paramètres</li>
+</ol>
+
+<h2>📞 Support</h2>
+<p>
+    Pour toute question ou assistance, contactez-nous :
+</p>
+<ul>
+    <li>📧 Email : contact@elasticity.studio</li>
+    <li>🌐 Site : <a href="https://elasticity.studio">elasticity.studio</a></li>
+    <li>📖 Documentation complète incluse dans le module</li>
+</ul>
+
+<footer>
+    <p>
+        <strong>ClearSpend</strong> - Développé avec ❤️ par 
+        <a href="https://elasticity.studio">Rise Up Éditions / Elasticity Studio</a>
+    </p>
+    <p>Licence LGPL-3 • Odoo 17 Compatible</p>
+</footer>
+
+</body>
+</html>

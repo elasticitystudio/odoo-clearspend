@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Vue liste historique -->
+    <record id="view_expense_history_tree" model="ir.ui.view">
+        <field name="name">clearspend.expense.history.tree</field>
+        <field name="model">clearspend.expense.history</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="date"/>
+                <field name="month"/>
+                <field name="total_monthly" sum="Total"/>
+                <field name="subscription_count"/>
+                <field name="essential_amount"/>
+                <field name="important_amount"/>
+                <field name="optional_amount"/>
+                <field name="finops_score"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Vue graphique - Évolution des dépenses -->
+    <record id="view_expense_history_graph" model="ir.ui.view">
+        <field name="name">clearspend.expense.history.graph</field>
+        <field name="model">clearspend.expense.history</field>
+        <field name="arch" type="xml">
+            <graph string="Évolution des dépenses" type="line">
+                <field name="date" type="col"/>
+                <field name="total_monthly" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
+    <!-- Vue graphique - Répartition par catégorie -->
+    <record id="view_expense_history_graph_pie" model="ir.ui.view">
+        <field name="name">clearspend.expense.history.graph.pie</field>
+        <field name="model">clearspend.expense.history</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <graph string="Répartition par catégorie" type="pie">
+                <field name="month" type="col"/>
+                <field name="essential_amount" type="measure"/>
+                <field name="important_amount" type="measure"/>
+                <field name="optional_amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
+    <!-- Vue graphique - Score FinOps dans le temps -->
+    <record id="view_expense_history_graph_score" model="ir.ui.view">
+        <field name="name">clearspend.expense.history.graph.score</field>
+        <field name="model">clearspend.expense.history</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <graph string="Évolution du Score FinOps" type="line">
+                <field name="date" type="col"/>
+                <field name="finops_score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
+    <!-- Vue pivot -->
+    <record id="view_expense_history_pivot" model="ir.ui.view">
+        <field name="name">clearspend.expense.history.pivot</field>
+        <field name="model">clearspend.expense.history</field>
+        <field name="arch" type="xml">
+            <pivot string="Analyse des dépenses">
+                <field name="year" type="row"/>
+                <field name="month" type="row"/>
+                <field name="total_monthly" type="measure"/>
+                <field name="subscription_count" type="measure"/>
+                <field name="finops_score" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    
+    <!-- Vue recherche -->
+    <record id="view_expense_history_search" model="ir.ui.view">
+        <field name="name">clearspend.expense.history.search</field>
+        <field name="model">clearspend.expense.history</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="date"/>
+                <field name="month"/>
+                <field name="year"/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_month" string="Mois" context="{'group_by': 'month'}"/>
+                    <filter name="group_year" string="Année" context="{'group_by': 'year'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <!-- Action principale -->
+    <record id="action_expense_history" model="ir.actions.act_window">
+        <field name="name">📈 Évolution des dépenses</field>
+        <field name="res_model">clearspend.expense.history</field>
+        <field name="view_mode">graph,pivot,tree</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun historique
+            </p>
+            <p>
+                Allez dans Configuration → Enregistrer snapshot pour commencer à tracker vos dépenses.
+                Ou générez un historique de démo pour voir les graphiques.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Actions serveur -->
+    <record id="action_record_snapshot" model="ir.actions.server">
+        <field name="name">Enregistrer snapshot</field>
+        <field name="model_id" ref="model_clearspend_expense_history"/>
+        <field name="state">code</field>
+        <field name="code">model.record_snapshot()</field>
+    </record>
+    
+    <record id="action_generate_demo_history" model="ir.actions.server">
+        <field name="name">Générer historique démo</field>
+        <field name="model_id" ref="model_clearspend_expense_history"/>
+        <field name="state">code</field>
+        <field name="code">action = model.generate_demo_history()</field>
+    </record>
+    
+</odoo>

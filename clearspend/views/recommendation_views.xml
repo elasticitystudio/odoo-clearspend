@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_recommendation_tree" model="ir.ui.view">
+        <field name="name">clearspend.recommendation.tree</field>
+        <field name="model">clearspend.recommendation</field>
+        <field name="arch" type="xml">
+            <tree decoration-success="state == 'done'" 
+                  decoration-muted="state == 'rejected'"
+                  decoration-warning="potential_savings >= 500">
+                <field name="name"/>
+                <field name="recommendation_type"/>
+                <field name="potential_savings" sum="Total économies"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'new'"
+                       decoration-success="state in ('accepted', 'done')"
+                       decoration-muted="state == 'rejected'"/>
+            </tree>
+        </field>
+    </record>
+    
+    <record id="view_recommendation_form" model="ir.ui.view">
+        <field name="name">clearspend.recommendation.form</field>
+        <field name="model">clearspend.recommendation</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_accept" type="object" string="✓ Accepter" 
+                            class="btn-success" invisible="state != 'new'"/>
+                    <button name="action_reject" type="object" string="✗ Rejeter" 
+                            class="btn-secondary" invisible="state != 'new'"/>
+                    <button name="action_done" type="object" string="✓ Appliqué" 
+                            class="btn-primary" invisible="state != 'accepted'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    
+                    <group>
+                        <group>
+                            <field name="recommendation_type"/>
+                            <field name="potential_savings" widget="monetary"/>
+                        </group>
+                    </group>
+                    
+                    <separator string="Détail"/>
+                    <field name="description" placeholder="Description de la recommandation..."/>
+                    
+                    <separator string="Abonnements concernés"/>
+                    <field name="subscription_ids">
+                        <tree>
+                            <field name="name"/>
+                            <field name="provider_id"/>
+                            <field name="amount"/>
+                            <field name="billing_cycle"/>
+                        </tree>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <record id="view_recommendation_search" model="ir.ui.view">
+        <field name="name">clearspend.recommendation.search</field>
+        <field name="model">clearspend.recommendation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <filter name="filter_new" string="Nouvelles" domain="[('state', '=', 'new')]"/>
+                <filter name="filter_accepted" string="Acceptées" domain="[('state', '=', 'accepted')]"/>
+                <separator/>
+                <filter name="filter_duplicates" string="Doublons" domain="[('recommendation_type', '=', 'duplicate')]"/>
+                <filter name="filter_yearly" string="Passer en annuel" domain="[('recommendation_type', '=', 'switch_yearly')]"/>
+                <filter name="filter_review" string="À revoir" domain="[('recommendation_type', '=', 'to_review')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_type" string="Type" context="{'group_by': 'recommendation_type'}"/>
+                    <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <record id="action_recommendation" model="ir.actions.act_window">
+        <field name="name">Recommandations d'économies</field>
+        <field name="res_model">clearspend.recommendation</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="context">{'search_default_filter_new': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune recommandation
+            </p>
+            <p>
+                Allez dans Configuration → Analyser les économies pour générer des recommandations.
+            </p>
+        </field>
+    </record>
+    
+    <record id="action_generate_recommendations" model="ir.actions.server">
+        <field name="name">Analyser les économies</field>
+        <field name="model_id" ref="model_clearspend_recommendation"/>
+        <field name="state">code</field>
+        <field name="code">action = model.generate_recommendations()</field>
+    </record>
+    
+</odoo>

@@ -14,7 +14,7 @@
                 <field name="due_date"/>
                 <field name="subscription_id"/>
                 <templates>
-                    <t t-name="kanban-box">
+                    <t t-name="card">
                         <div t-attf-class="oe_kanban_card oe_kanban_global_click #{record.priority.raw_value == '3' ? 'border-danger' : record.priority.raw_value == '2' ? 'border-warning' : ''}">
                             <div class="oe_kanban_content">
                                 <div class="o_kanban_record_top">
@@ -64,7 +64,7 @@
                 <field name="potential_savings"/>
                 <field name="state"/>
                 <templates>
-                    <t t-name="kanban-box">
+                    <t t-name="card">
                         <div class="oe_kanban_card oe_kanban_global_click">
                             <div class="oe_kanban_content">
                                 <div class="o_kanban_record_top">

@@ -40,7 +40,7 @@
                 <field name="subscription_id"/>
                 <field name="resolved"/>
                 <templates>
-                    <t t-name="kanban-box">
+                    <t t-name="card">
                         <div t-attf-class="oe_kanban_card oe_kanban_global_click #{record.resolved.raw_value ? 'o_kanban_record_muted' : ''}">
                             <div class="oe_kanban_content">
                                 <div class="o_kanban_record_top">

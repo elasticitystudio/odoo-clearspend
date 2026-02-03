@@ -259,7 +259,7 @@
                 <field name="is_favorite"/>
                 <progressbar field="state" colors='{"draft": "info", "validated": "warning", "active": "success", "cancelled": "muted"}'/>
                 <templates>
-                    <t t-name="kanban-box">
+                    <t t-name="card">
                         <div t-attf-class="oe_kanban_card oe_kanban_global_click #{record.state.raw_value == 'cancelled' ? 'o_kanban_record_muted' : ''}"
                              style="border-radius: 10px; border-left: 4px solid #{record.category.raw_value == 'essential' ? '#dc3545' : record.category.raw_value == 'important' ? '#fd7e14' : record.category.raw_value == 'optional' ? '#ffc107' : '#6c757d'};">
                             <div class="oe_kanban_content p-2">

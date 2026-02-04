@@ -31,6 +31,9 @@ class ClearspendBudget(models.Model):
     # Écarts
     variance_total = fields.Float(string='Écart total', compute='_compute_variance')
     variance_percent = fields.Float(string='Écart (%)', compute='_compute_variance')
+    variance_essential = fields.Float(string='Écart essentiels', compute='_compute_variance')
+    variance_important = fields.Float(string='Écart importants', compute='_compute_variance')
+    variance_optional = fields.Float(string='Écart optionnels', compute='_compute_variance')
     
     # Statut
     state = fields.Selection([
@@ -98,6 +101,9 @@ class ClearspendBudget(models.Model):
     def _compute_variance(self):
         for record in self:
             record.variance_total = record.budget_total - record.spent_total
+            record.variance_essential = record.budget_essential - record.spent_essential
+            record.variance_important = record.budget_important - record.spent_important
+            record.variance_optional = record.budget_optional - record.spent_optional
             
             if record.budget_total > 0:
                 used_percent = (record.spent_total / record.budget_total) * 100
@@ -125,7 +131,13 @@ class ClearspendBudget(models.Model):
         self.write({'state': 'draft'})
 
     def action_refresh(self):
-        """Recalcule les dépenses."""
+        """Recalcule les dépenses et synchronise le budget depuis la config."""
+        # Sync budget_total depuis config si pas encore défini ou si = 0
+        config = self.env['clearspend.config'].search([
+            ('company_id', '=', self.env.company.id)
+        ], limit=1)
+        if config and config.budget_monthly and self.budget_total == 0:
+            self.budget_total = config.budget_monthly
         self._compute_spent()
         return {
             'type': 'ir.actions.client',
@@ -154,7 +166,16 @@ class ClearspendBudget(models.Model):
                 ('month', '=', str(prev_month.month)),
             ], limit=1)
             
-            default_total = prev_budget.budget_total if prev_budget else 0
+            # Priorité : config > mois précédent > 0
+            config = self.env['clearspend.config'].search([
+                ('company_id', '=', self.env.company.id)
+            ], limit=1)
+            if config and config.budget_monthly:
+                default_total = config.budget_monthly
+            elif prev_budget:
+                default_total = prev_budget.budget_total
+            else:
+                default_total = 0
             
             budget = self.create({
                 'year': today.year,

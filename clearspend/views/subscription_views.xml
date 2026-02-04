@@ -43,6 +43,8 @@
         <field name="arch" type="xml">
             <form>
                 <header>
+                    <button string="💾 Enregistrer" type="object" name="action_save" 
+                            class="btn-primary" invisible="id == False"/>
                     <button name="action_toggle_favorite" type="object" 
                             class="btn-link" icon="fa-star" title="Ajouter aux favoris"/>
                     

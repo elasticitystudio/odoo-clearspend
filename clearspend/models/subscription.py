@@ -379,6 +379,10 @@ class ClearspendSubscription(models.Model):
             status = "ajouté aux" if record.is_favorite else "retiré des"
             return self._notification('⭐ Favoris', f'{record.name} {status} favoris.', 'info')
 
+    def action_save(self):
+        """Sauvegarde explicite avec notification."""
+        return self._notification('💾 Enregistré', 'Les modifications ont été sauvegardées.', 'success')
+
     def action_view_contracts(self):
         """Ouvre les contrats liés."""
         self.ensure_one()

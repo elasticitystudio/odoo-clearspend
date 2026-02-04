@@ -76,19 +76,19 @@
                                         <td>🔴 <strong>Essentiels</strong></td>
                                         <td class="text-end"><field name="budget_essential" nolabel="1"/></td>
                                         <td class="text-end"><field name="spent_essential" nolabel="1"/></td>
-                                        <td class="text-end">-</td>
+                                        <td class="text-end"><field name="variance_essential" nolabel="1"/></td>
                                     </tr>
                                     <tr>
                                         <td>🟠 <strong>Importants</strong></td>
                                         <td class="text-end"><field name="budget_important" nolabel="1"/></td>
                                         <td class="text-end"><field name="spent_important" nolabel="1"/></td>
-                                        <td class="text-end">-</td>
+                                        <td class="text-end"><field name="variance_important" nolabel="1"/></td>
                                     </tr>
                                     <tr>
                                         <td>🟡 <strong>Optionnels</strong></td>
                                         <td class="text-end"><field name="budget_optional" nolabel="1"/></td>
                                         <td class="text-end"><field name="spent_optional" nolabel="1"/></td>
-                                        <td class="text-end">-</td>
+                                        <td class="text-end"><field name="variance_optional" nolabel="1"/></td>
                                     </tr>
                                     <tr class="table-secondary fw-bold">
                                         <td><strong>TOTAL</strong></td>
